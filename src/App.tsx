@@ -107,26 +107,17 @@ function generateLineup(team: Team, formationName: string): (number | null)[] {
   const assignment: (number | null)[] = slots.map(() => null)
   const used = new Set<number>()
 
-  slots.forEach((slot, index) => {
-    const match = team.roster.find(
-      (player) => !used.has(player.id) && player.positions.includes(slot.role)
+  team.roster.forEach((player) => {
+
+    const slotIndex = slots.findIndex(
+      (slot, index) => assignment[index] === null && player.positions.includes(slot.role)
     )
 
-    if (match) {
-      assignment[index] = match.id
-      used.add(match.id)
+    if (slotIndex !== -1) {
+      assignment[slotIndex] = player.id
+      used.add(player.id)
     }
-  })
 
-  slots.forEach((_, index) => {
-    if (assignment[index] === null) {
-      const fallback = team.roster.find((player) => !used.has(player.id))
-
-      if (fallback) {
-        assignment[index] = fallback.id
-        used.add(fallback.id)
-      }
-    }
   })
 
   return assignment
@@ -181,7 +172,7 @@ function buildPlayersFromAssignment(
       name: rosterPlayer.name,
       position: slots[index].role,
       x: side === "home" ? slots[index].x : 960 - slots[index].x,
-      y: slots[index].y,
+      y: side === "home" ? slots[index].y : 600 - slots[index].y,
       color: kitColor,
       numberColor: kitNumberColor,
       slotIndex: index
@@ -941,38 +932,45 @@ function swapAwayTeam(newTeamId: number) {
 function flipField() {
 
   const mirrorX = (x: number) => 960 - x
+  const mirrorY = (y: number) => 600 - y
 
   setPlayers(current =>
     current.map(player => ({
       ...player,
-      x: mirrorX(player.x)
+      x: mirrorX(player.x),
+      y: mirrorY(player.y)
     }))
   )
 
   setBallPosition(current =>
-    current ? { ...current, x: mirrorX(current.x) } : current
+    current ? { x: mirrorX(current.x), y: mirrorY(current.y) } : current
   )
 
   setArrows(current =>
     current.map(arrow => ({
       ...arrow,
       startX: mirrorX(arrow.startX),
+      startY: mirrorY(arrow.startY),
       endX: mirrorX(arrow.endX),
-      controlX: arrow.controlX !== undefined ? mirrorX(arrow.controlX) : arrow.controlX
+      endY: mirrorY(arrow.endY),
+      controlX: arrow.controlX !== undefined ? mirrorX(arrow.controlX) : arrow.controlX,
+      controlY: arrow.controlY !== undefined ? mirrorY(arrow.controlY) : arrow.controlY
     }))
   )
 
   setTexts(current =>
     current.map(item => ({
       ...item,
-      x: mirrorX(item.x)
+      x: mirrorX(item.x),
+      y: mirrorY(item.y)
     }))
   )
 
   setRectangles(current =>
     current.map(rect => ({
       ...rect,
-      x: mirrorX(rect.x + rect.width)
+      x: mirrorX(rect.x + rect.width),
+      y: mirrorY(rect.y + rect.height)
     }))
   )
 }
@@ -1024,7 +1022,7 @@ function applyFormation(formationName: string, side: "home" | "away") {
     const repositioned = sidePlayers.map((player, index) => ({
       ...player,
       x: side === "home" ? (slots[index]?.x ?? player.x) : 960 - (slots[index]?.x ?? player.x),
-      y: slots[index]?.y ?? player.y,
+      y: side === "home" ? (slots[index]?.y ?? player.y) : 600 - (slots[index]?.y ?? player.y),
       position: slots[index]?.role ?? player.position,
       numberColor: player.numberColor ?? "white",
       slotIndex: index
