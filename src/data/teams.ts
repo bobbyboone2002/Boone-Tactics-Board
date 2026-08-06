@@ -64,36 +64,6 @@ export const teams: Team[] = [
   },
 
   {
-    id: 100,
-    name: "FPL",
-    league: "Custom",
-    homeColor: "orange",
-    homeNumberColor: "black",
-    awayColor: "gray",
-    awayNumberColor: "black",
-    thirdColor: "olive",
-    thirdNumberColor: "black",
-    activeKit: "home",
-    roster: [
-      { id: 1, number: 1, name: "Becker", positions: ["GK"] },
-      { id: 2, number: 2, name: "Aina", positions: ["RB"] },
-      { id: 3, number: 3, name: "Colwill", positions: ["CB"] },
-      { id: 4, number: 4, name: "Lacroix", positions: ["CB"] },
-      { id: 5, number: 5, name: "Gibbs-White", positions: ["CM"] },
-      { id: 6, number: 6, name: "Palmer", positions: ["CAM", "RW"] },
-      { id: 7, number: 7, name: "Haaland", positions: ["ST"] },
-      { id: 8, number: 8, name: "Joao Pedro", positions: ["ST"] },
-      { id: 9, number: 9, name: "Schade", positions: ["LW"] },
-      { id: 10, number: 10, name: "Dewsbury-Hall", positions: ["CDM", "CM"] },
-      { id: 11, number: 11, name: "Ndiaye", positions: ["RW"] },
-      { id: 12, number: 12, name: "Welbeck", positions: ["ST"] },
-      { id: 13, number: 13, name: "Mykolenko", positions: ["LB"] },
-      { id: 14, number: 14, name: "Konsa", positions: ["CB"] },
-      { id: 15, number: 15, name: "Sels", positions: ["GK"] }
-    ]
-  },
-
-  {
     id: 101,
     name: "Custom 1",
     league: "Custom",
@@ -119,7 +89,70 @@ export const teams: Team[] = [
       { id: 12, number: 12, name: "-", positions: ["CAM"] },
       { id: 13, number: 13, name: "-", positions: ["GK"] },
       { id: 14, number: 14, name: "-", positions: ["CB"] },
-      { id: 15, number: 15, name: "-", positions: ["CDM"] }
+      { id: 15, number: 15, name: "-", positions: ["CDM"] },
+      { id: 16, number: 16, name: "-", positions: ["ST"] }
+    ]
+  },
+
+  {
+    id: 102,
+    name: "Custom 2",
+    league: "Custom",
+    homeColor: "black",
+    homeNumberColor: "white",
+    awayColor: "orange",
+    awayNumberColor: "black",
+    thirdColor: "pink",
+    thirdNumberColor: "black",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 1, name: "-", positions: ["GK"] },
+      { id: 2, number: 2, name: "-", positions: ["RB"] },
+      { id: 3, number: 3, name: "-", positions: ["CB"] },
+      { id: 4, number: 4, name: "-", positions: ["CB"] },
+      { id: 5, number: 5, name: "-", positions: ["LB"] },
+      { id: 6, number: 6, name: "-", positions: ["CDM"] },
+      { id: 7, number: 7, name: "-", positions: ["RW"] },
+      { id: 8, number: 8, name: "-", positions: ["CM"] },
+      { id: 9, number: 9, name: "-", positions: ["ST"] },
+      { id: 10, number: 10, name: "-", positions: ["CAM"] },
+      { id: 11, number: 11, name: "-", positions: ["LW"] },
+      { id: 12, number: 12, name: "-", positions: ["CAM"] },
+      { id: 13, number: 13, name: "-", positions: ["GK"] },
+      { id: 14, number: 14, name: "-", positions: ["CB"] },
+      { id: 15, number: 15, name: "-", positions: ["CDM"] },
+      { id: 16, number: 16, name: "-", positions: ["ST"] }
+    ]
+  },
+
+  {
+    id: 103,
+    name: "Custom 3",
+    league: "Custom",
+    homeColor: "black",
+    homeNumberColor: "white",
+    awayColor: "orange",
+    awayNumberColor: "black",
+    thirdColor: "pink",
+    thirdNumberColor: "black",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 1, name: "-", positions: ["GK"] },
+      { id: 2, number: 2, name: "-", positions: ["RB"] },
+      { id: 3, number: 3, name: "-", positions: ["CB"] },
+      { id: 4, number: 4, name: "-", positions: ["CB"] },
+      { id: 5, number: 5, name: "-", positions: ["LB"] },
+      { id: 6, number: 6, name: "-", positions: ["CDM"] },
+      { id: 7, number: 7, name: "-", positions: ["RW"] },
+      { id: 8, number: 8, name: "-", positions: ["CM"] },
+      { id: 9, number: 9, name: "-", positions: ["ST"] },
+      { id: 10, number: 10, name: "-", positions: ["CAM"] },
+      { id: 11, number: 11, name: "-", positions: ["LW"] },
+      { id: 12, number: 12, name: "-", positions: ["CAM"] },
+      { id: 13, number: 13, name: "-", positions: ["GK"] },
+      { id: 14, number: 14, name: "-", positions: ["CB"] },
+      { id: 15, number: 15, name: "-", positions: ["CDM"] },
+      { id: 16, number: 16, name: "-", positions: ["ST"] }
     ]
   }
 ]

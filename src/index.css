@@ -63,6 +63,8 @@ box-sizing: border-box;
 
 html {
 background-color: #f5f0dc;
+background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+background-size: 20px 20px;
 }
 
 body {
