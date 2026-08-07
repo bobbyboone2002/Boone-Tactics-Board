@@ -38,7 +38,7 @@ export const teams: Team[] = [
       { id: 23, number: 56, name: "Dowman", positions: ["RW"] },
       { id: 24, number: 22, name: "Nwaneri", positions: ["CAM"] },
       { id: 25, number: 13, name: "Kepa", positions: ["GK"] },
-      { id: 26, number: 30, name: "Meslier", positions: ["GK"] },
+      { id: 26, number: 30, name: "Meslier", positions: ["GK"] }
     ]
   },
 
@@ -78,7 +78,7 @@ export const teams: Team[] = [
       { id: 22, number: 83, name: "Burrowes", positions: ["RW"] },
       { id: 23, number: 53, name: "Hemmings", positions: ["CM"] },
       { id: 24, number: 16, name: "A.Garcia", positions: ["RB", "RWB"] },
-      { id: 25, number: 20, name: "Nedeljkovic", positions: ["RB"] },
+      { id: 25, number: 20, name: "Nedeljkovic", positions: ["RB"] }
     ]
   },
 
@@ -119,7 +119,7 @@ export const teams: Team[] = [
       { id: 23, number: 2, name: "J.Araujo", positions: ["RB", "RWB"] },
       { id: 24, number: 17, name: "Forster", positions: ["GK"] },
       { id: 25, number: 40, name: "Dennis", positions: ["GK"] },
-      { id: 26, number: 6, name: "Soler", positions: ["LB", "LWB"] },
+      { id: 26, number: 6, name: "Soler", positions: ["LB", "LWB"] }
     ]
   },
 
@@ -160,7 +160,95 @@ export const teams: Team[] = [
       { id: 23, number: 44, name: "Schuster", positions: ["CB"] },
       { id: 24, number: 11, name: "Anthony", positions: ["LW", "ST"] },
       { id: 25, number: 36, name: "Ji-soo", positions: ["CB"] },
-      { id: 26, number: 12, name: "Valdimarsson", positions: ["GK"] },
+      { id: 26, number: 12, name: "Valdimarsson", positions: ["GK"] }
+    ]
+  },
+
+  {
+    id: 35,
+    name: "Brighton",
+    league: "Premier League",
+    homeColor: "#0B1EA1",
+    homeNumberColor: "#FFFFFF",
+    awayColor: "#FFFFFF",
+    awayNumberColor: "#1D2549",
+    thirdColor: "#10353D",
+    thirdNumberColor: "#FFFFFF",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 22, name: "Mitoma", positions: ["LW"] },
+      { id: 2, number: 11, name: "Minteh", positions: ["RW", "RWB"] },
+      { id: 3, number: 13, name: "Hinshelwood", positions: ["CDM", "RB"] },
+      { id: 4, number: 30, name: "GroB", positions: ["CM"] },
+      { id: 5, number: 33, name: "O'Riley", positions: ["CAM", "CM"] },
+      { id: 6, number: 26, name: "Ayari", positions: ["CM"] },
+      { id: 7, number: 10, name: "Georginio", positions: ["ST", "CAM"] },
+      { id: 8, number: 9, name: "Tzimas", positions: ["ST"] },
+      { id: 9, number: 19, name: "Kostoulas", positions: ["ST"] },
+      { id: 10, number: 16, name: "Vuskovic", positions: ["CB"] },
+      { id: 11, number: 29, name: "De Cuyper", positions: ["LB", "LWB"] },
+      { id: 12, number: 27, name: "Wieffer", positions: ["RB"] },
+      { id: 13, number: 5, name: "Strujik", positions: ["CB"] },
+      { id: 14, number: 33, name: "Svoboda", positions: ["CB"] },
+      { id: 15, number: 25, name: "Gomez", positions: ["CM"] },
+      { id: 16, number: 40, name: "Buonanotte", positions: ["CAM"] },
+      { id: 17, number: 17, name: "Baleba", positions: ["CDM"] },
+      { id: 18, number: 36, name: "Yohanna", positions: ["RW"] },
+      { id: 19, number: 1, name: "Verbruggen", positions: ["GK"] },
+      { id: 20, number: 24, name: "F.Kadioglu", positions: ["LB", "LWB"] },
+      { id: 21, number: 21, name: "Boscagli", positions: ["LB", "CB"] },
+      { id: 22, number: 5, name: "Dunk", positions: ["CB"] },
+      { id: 23, number: 42, name: "Coppola", positions: ["CB"] },
+      { id: 24, number: 3, name: "Igor", positions: ["CB", "LB"] },
+      { id: 25, number: 20, name: "Costinha", positions: ["RB"] },
+      { id: 26, number: 53, name: "Howell", positions: ["CAM"] },
+      { id: 27, number: 58, name: "Oriola", positions: ["LW"] },
+      { id: 28, number: 23, name: "Steele", positions: ["GK"] }
+    ]
+  },
+
+  {
+    id: 36,
+    name: "Chelsea",
+    league: "Premier League",
+    homeColor: "#294BCC",
+    homeNumberColor: "#FFFFFF",
+    awayColor: "#0D0D0D",
+    awayNumberColor: "#FFFFFF",
+    thirdColor: "#FFFFFF",
+    thirdNumberColor: "#1D2549",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 10, name: "Palmer", positions: ["CAM", "RW"] },
+      { id: 2, number: 17, name: "Rogers", positions: ["CAM", "LW"] },
+      { id: 3, number: 20, name: "Joao Pedro", positions: ["ST", "CAM"] },
+      { id: 4, number: 41, name: "Estevao", positions: ["RW", "CAM"] },
+      { id: 5, number: 7, name: "Neto", positions: ["LW", "RW", "LWB"] },
+      { id: 6, number: 15, name: "N.Jackson", positions: ["ST", "LW"] },
+      { id: 7, number: 23, name: "Lacroix", positions: ["CB"] },
+      { id: 8, number: 6, name: "Colwill", positions: ["CB"] },
+      { id: 9, number: 18, name: "Welbeck", positions: ["ST"] },
+      { id: 10, number: 24, name: "James", positions: ["CDM", "CB"] },
+      { id: 11, number: 2, name: "Palestra", positions: ["RB", "RWB"] },
+      { id: 12, number: 25, name: "Caicedo", positions: ["CDM", "CM"] },
+      { id: 13, number: 47, name: "Quenda", positions: ["RW", "RWB"] },
+      { id: 14, number: 32, name: "Barco", positions: ["CM"] },
+      { id: 15, number: 1, name: "Sanchez", positions: ["GK"] },
+      { id: 16, number: 39, name: "Penders", positions: ["GK"] },
+      { id: 17, number: 27, name: "Gusto", positions: ["RB", "RWB"] },
+      { id: 18, number: 43, name: "Mudryk", positions: ["LW"] },
+      { id: 19, number: 29, name: "Fofana", positions: ["CB"] },
+      { id: 20, number: 14, name: "Henderson", positions: ["CM"] },
+      { id: 21, number: 45, name: "Lavia", positions: ["CDM"] },
+      { id: 22, number: 100, name: "Emegha", positions: ["ST"] },
+      { id: 23, number: 3, name: "Chavarria", positions: ["LWB"] },
+      { id: 24, number: 21, name: "Hato", positions: ["LB", "LWB","CB"] },
+      { id: 25, number: 34, name: "Acheampong", positions: ["CB", "RB", "RWB"] },
+      { id: 26, number: 19, name: "M.Sarr", positions: ["CB"] },
+      { id: 27, number: 14, name: "Essugo", positions: ["CDM"] },
+      { id: 28, number: 11, name: "Gittens", positions: ["LW"] },
+      { id: 29, number: 46, name: "Walsh", positions: ["CM"] },
+      { id: 30, number: 31, name: "Watson", positions: ["CDM"] }
     ]
   },
 
