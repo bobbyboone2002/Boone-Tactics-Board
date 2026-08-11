@@ -595,7 +595,7 @@ export const teams: Team[] = [
 
   {
     id: 45,
-    name: "Liverpool",
+    name: "Manchester City",
     league: "Premier League",
     homeColor: "#A6D6FF",
     homeNumberColor: "#1D2549",
