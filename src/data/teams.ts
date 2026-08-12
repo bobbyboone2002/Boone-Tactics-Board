@@ -2,7 +2,7 @@ import type { Team } from "../types"
 
 export const teams: Team[] = [
   {
-    id: 31,
+    id: 2026081101,
     name: "Arsenal",
     league: "Premier League",
     homeColor: "#C20020",
@@ -43,7 +43,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 32,
+    id: 2026081102,
     name: "Aston Villa",
     league: "Premier League",
     homeColor: "#57172C",
@@ -83,7 +83,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 33,
+    id: 2026081103,
     name: "Bournemouth",
     league: "Premier League",
     homeColor: "#DB2C2C",
@@ -124,7 +124,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 34,
+    id: 2026081104,
     name: "Brentford",
     league: "Premier League",
     homeColor: "#D92B2B",
@@ -165,7 +165,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 35,
+    id: 2026081105,
     name: "Brighton",
     league: "Premier League",
     homeColor: "#0B1EA1",
@@ -208,7 +208,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 36,
+    id: 2026081106,
     name: "Chelsea",
     league: "Premier League",
     homeColor: "#294BCC",
@@ -253,7 +253,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 37,
+    id: 2026081107,
     name: "Coventry City",
     league: "Premier League",
     homeColor: "#41B0E8",
@@ -297,7 +297,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 38,
+    id: 2026081108,
     name: "Crystal Palace",
     league: "Premier League",
     homeColor: "#FFFFFF",
@@ -341,7 +341,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 39,
+    id: 2026081109,
     name: "Everton",
     league: "Premier League",
     homeColor: "#092196",
@@ -380,7 +380,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 40,
+    id: 2026081110,
     name: "Fulham",
     league: "Premier League",
     homeColor: "#FFFFFF",
@@ -418,7 +418,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 41,
+    id: 2026081111,
     name: "Hull City",
     league: "Premier League",
     homeColor: "#FFA000",
@@ -462,7 +462,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 42,
+    id: 2026081112,
     name: "Ipswich Town",
     league: "Premier League",
     homeColor: "#102A94",
@@ -506,7 +506,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 43,
+    id: 2026081113,
     name: "Leeds United",
     league: "Premier League",
     homeColor: "#FFFFFF",
@@ -545,7 +545,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 44,
+    id: 2026081114,
     name: "Liverpool",
     league: "Premier League",
     homeColor: "#BA002A",
@@ -594,7 +594,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 45,
+    id: 2026081115,
     name: "Manchester City",
     league: "Premier League",
     homeColor: "#A6D6FF",
@@ -637,7 +637,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 46,
+    id: 2026081116,
     name: "Manchester United",
     league: "Premier League",
     homeColor: "#C9182A",
@@ -683,7 +683,7 @@ export const teams: Team[] = [
   },
 
   {
-    id: 47,
+    id: 2026081117,
     name: "Newcastle United",
     league: "Premier League",
     homeColor: "#1C1F24",
@@ -719,6 +719,136 @@ export const teams: Team[] = [
       { id: 23, number: 1, name: "Pope", positions: ["GK"] },
       { id: 24, number: 24, name: "Jaouen", positions: ["GK"] },
       { id: 25, number: 29, name: "Gillespie", positions: ["GK"] }
+    ]
+  },
+
+  {
+    id: 2026081118,
+    name: "Nottingham Forest",
+    league: "Premier League",
+    homeColor: "#CC1020",
+    homeNumberColor: "#FFFFFF",
+    awayColor: "#0F1F11",
+    awayNumberColor: "#FFFFFF",
+    thirdColor: "lime",
+    thirdNumberColor: "#1D1D1B",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 3, name: "N.Williams", positions: ["LB", "LWB"] },
+      { id: 2, number: 10, name: "Gibbs-White", positions: ["CAM", "CM"] },
+      { id: 3, number: 22, name: "Yates", positions: ["CDM", "CM"] },
+      { id: 4, number: 19, name: "Igor Jesus", positions: ["ST"] },
+      { id: 5, number: 34, name: "Aina", positions: ["RWB", "RB"] },
+      { id: 6, number: 31, name: "Milenkovic", positions: ["CB"] },
+      { id: 7, number: 11, name: "Wood", positions: ["ST"] },
+      { id: 8, number: 26, name: "Sels", positions: ["GK"] },
+      { id: 9, number: 6, name: "Sangare", positions: ["CDM", "CM"] },
+      { id: 10, number: 14, name: "Ndoye", positions: ["RW"] },
+      { id: 11, number: 5, name: "Murillo", positions: ["CB"] },
+      { id: 12, number: 23, name: "Jair Cunha", positions: ["CB"] },
+      { id: 13, number: 9, name: "Awoniyi", positions: ["ST"] },
+      { id: 14, number: 27, name: "O.Richards", positions: ["LWB", "LB"] },
+      { id: 15, number: 44, name: "Abbott", positions: ["CB"] },
+      { id: 16, number: 4, name: "Bindon", positions: ["CB"] },
+      { id: 17, number: 29, name: "Bakwa", positions: ["RW"] },
+      { id: 18, number: 21, name: "Hutchinson", positions: ["RW", "CAM"] },
+      { id: 19, number: 7, name: "Hudson-Odoi", positions: ["LW"] },
+      { id: 20, number: 16, name: "Dominguez", positions: ["CM"] },
+      { id: 21, number: 24, name: "McAtee", positions: ["CAM", "CM"] },
+      { id: 22, number: 15, name: "Kalimuendo", positions: ["ST"] },
+      { id: 23, number: 37, name: "Savona", positions: ["RB"] },
+      { id: 24, number: 21, name: "Morato", positions: ["CDM", "CM"] },
+      { id: 25, number: 29, name: "Schlager", positions: ["GK"] },
+      { id: 26, number: 13, name: "John", positions: ["GK"] }
+    ]
+  },
+
+  {
+    id: 2026081119,
+    name: "Sunderland",
+    league: "Premier League",
+    homeColor: "#BD0006",
+    homeNumberColor: "#FFFFFF",
+    awayColor: "#FCB8C7",
+    awayNumberColor: "#1D1D1B",
+    thirdColor: "#1C00D1",
+    thirdNumberColor: "#FFFFFF",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 3, name: "Brobbey", positions: ["ST"] },
+      { id: 2, number: 28, name: "E.Le Fee", positions: ["CAM", "CM"] },
+      { id: 3, number: 20, name: "Mukiele", positions: ["CB", "RB"] },
+      { id: 4, number: 34, name: "Xhaka", positions: ["CDM"] },
+      { id: 5, number: 22, name: "Roefs", positions: ["GK"] },
+      { id: 6, number: 5, name: "Ballard", positions: ["CB"] },
+      { id: 7, number: 32, name: "Hume", positions: ["RB", "RWB"] },
+      { id: 8, number: 13, name: "O'Nien", positions: ["CDM"] },
+      { id: 9, number: 26, name: "Masuaku", positions: ["LB", "CB"] },
+      { id: 10, number: 18, name: "Isidor", positions: ["ST"] },
+      { id: 11, number: 15, name: "Alderete", positions: ["CB", "LB"] },
+      { id: 12, number: 17, name: "Reinildo", positions: ["LB", "LWB"] },
+      { id: 13, number: 12, name: "Meunier", positions: ["RB", "RWB"] },
+      { id: 14, number: 27, name: "Sadiki", positions: ["CM", "CDM"] },
+      { id: 15, number: 33, name: "Hjelde", positions: ["LB", "CB"] },
+      { id: 16, number: 24, name: "Adingra", positions: ["LW"] },
+      { id: 17, number: 7, name: "Talbi", positions: ["RW"] },
+      { id: 18, number: 19, name: "Diarra", positions: ["CAM", "CM"] },
+      { id: 19, number: 11, name: "Rigg", positions: ["CAM", "CM"] },
+      { id: 20, number: 10, name: "Angulo", positions: ["LW"] },
+      { id: 21, number: 23, name: "Seelt", positions: ["CB"] },
+      { id: 22, number: 14, name: "Mundle", positions: ["LW"] },
+      { id: 23, number: 37, name: "Jocelin.T", positions: ["RW"] },
+      { id: 24, number: 1, name: "Patterson", positions: ["GK"] },
+      { id: 25, number: 31, name: "Ellborg", positions: ["GK"] }
+    ]
+  },
+
+  {
+    id: 2026081120,
+    name: "Tottenham",
+    league: "Premier League",
+    homeColor: "#F4F2F5",
+    homeNumberColor: "#1D2549",
+    awayColor: "#051933",
+    awayNumberColor: "#FFFFFF",
+    thirdColor: "#683EC2",
+    thirdNumberColor: "#FFFFFF",
+    activeKit: "home",
+    roster: [
+      { id: 1, number: 23, name: "Pedro Porro", positions: ["RB", "RWB"] },
+      { id: 2, number: 5, name: "Senesi", positions: ["CB"] },
+      { id: 3, number: 6, name: "Van Hecke", positions: ["CB"] },
+      { id: 4, number: 37, name: "Van de Ven", positions: ["CB"] },
+      { id: 5, number: 16, name: "Tonali", positions: ["CDM"] },
+      { id: 6, number: 18, name: "Fernandes", positions: ["CM"] },
+      { id: 7, number: 19, name: "Solanke", positions: ["ST"] },
+      { id: 8, number: 7, name: "Xavi", positions: ["CAM"] },
+      { id: 9, number: 10, name: "Maddison", positions: ["CAM"] },
+      { id: 10, number: 20, name: "Kudus", positions: ["RW"] },
+      { id: 11, number: 9, name: "Richarlison", positions: ["ST"] },
+      { id: 12, number: 3, name: "Robertson", positions: ["LB"] },
+      { id: 13, number: 44, name: "Scarlett", positions: ["ST"] },
+      { id: 14, number: 15, name: "Bergvall", positions: ["CM"] },
+      { id: 15, number: 33, name: "Daives", positions: ["CB", "LB"] },
+      { id: 16, number: 13, name: "Udogie", positions: ["LWB", "LB"] },
+      { id: 17, number: 11, name: "Tel", positions: ["LW"] },
+      { id: 18, number: 29, name: "P.M.Sarr", positions: ["CAM"] },
+      { id: 19, number: 38, name: "Souza", positions: ["LB"] },
+      { id: 20, number: 8, name: "Gallagher", positions: ["CM"] },
+      { id: 21, number: 4, name: "Danso", positions: ["CB"] },
+      { id: 22, number: 21, name: "Kulusevski", positions: ["CAM"] },
+      { id: 23, number: 28, name: "Odobert", positions: ["LW"] },
+      { id: 24, number: 30, name: "Bentancur", positions: ["CDM"] },
+      { id: 25, number: 52, name: "Olusesi", positions: ["CM"] },
+      { id: 26, number: 14, name: "Gray", positions: ["CDM"] },
+      { id: 27, number: 35, name: "Phillips", positions: ["CB"] },
+      { id: 28, number: 24, name: "Spence", positions: ["RWB", "RB"] },
+      { id: 29, number: 67, name: "Byfield", positions: ["CB"] },
+      { id: 30, number: 76, name: "Rowswell", positions: ["CB"] },
+      { id: 31, number: 47, name: "Moore", positions: ["LW"] },
+      { id: 32, number: 31, name: "Kinsky", positions: ["GK"] },
+      { id: 33, number: 39, name: "Dubravka", positions: ["GK"] },
+      { id: 34, number: 40, name: "Austin", positions: ["GK"] }
     ]
   },
 
