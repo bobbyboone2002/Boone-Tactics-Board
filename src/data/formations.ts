@@ -172,6 +172,50 @@ export const formations: Record<string, Slot[]> = {
     { role: "RW", x: 360, y: 520 },
     { role: "ST", x: 430, y: 240 },
     { role: "ST", x: 430, y: 360 }
+  ],
+
+  "5-2-3": [
+    { role: "GK", x: 50, y: 300 },
+    { role: "CB", x: 180, y: 180 },
+    { role: "CB", x: 180, y: 300 },
+    { role: "CB", x: 180, y: 420 },
+    { role: "LWB", x: 250, y: 80 },
+    { role: "CDM", x: 300, y: 250 },
+    { role: "CM", x: 300, y: 350 },
+    { role: "RWB", x: 250, y: 520 },
+    { role: "LW", x: 420, y: 140 },
+    { role: "ST", x: 430, y: 300 },
+    { role: "RW", x: 420, y: 460 }
+  ],
+
+  "5-3-2": [
+    { role: "GK", x: 50, y: 300 },
+    { role: "CB", x: 180, y: 180 },
+    { role: "CB", x: 180, y: 300 },
+    { role: "CB", x: 180, y: 420 },
+    { role: "LWB", x: 250, y: 80 },
+    { role: "RWB", x: 250, y: 520 },
+    { role: "CDM", x: 285, y: 300 },
+    { role: "CAM", x: 330, y: 200 },
+    { role: "CM", x: 330, y: 400 },
+    { role: "ST", x: 430, y: 240 },
+    { role: "ST", x: 430, y: 360 }
+    
+  ],
+
+  "5-4-1": [
+    { role: "GK", x: 50, y: 300 },
+    { role: "CB", x: 180, y: 180 },
+    { role: "CB", x: 180, y: 300 },
+    { role: "CB", x: 180, y: 420 },
+    { role: "LWB", x: 250, y: 80 },
+    { role: "RWB", x: 250, y: 520 },
+    { role: "CDM", x: 285, y: 360 },
+    { role: "CM", x: 285, y: 240 },
+    { role: "LW", x: 360, y: 140 },
+    { role: "RW", x: 360, y: 460 },
+    { role: "ST", x: 430, y: 300 }
+    
   ]
 
 }
