@@ -699,7 +699,7 @@ export const teams: Team[] = [
       { id: 3, number: 12, name: "Thiaw", positions: ["CB"] },
       { id: 4, number: 9, name: "Wissa", positions: ["ST"] },
       { id: 5, number: 18, name: "Osula", positions: ["ST"] },
-      { id: 6, number: 27, name: "Woltemade", positions: ["ST"] },
+      { id: 6, number: 27, name: "Woltemade", positions: ["CAM", "ST"] },
       { id: 7, number: 8, name: "Bamba", positions: ["CDM", "CM"] },
       { id: 8, number: 21, name: "Livramento", positions: ["RB", "RWB"] },
       { id: 9, number: 11, name: "Barnes", positions: ["LW"] },
@@ -776,7 +776,7 @@ export const teams: Team[] = [
     activeKit: "home",
     roster: [
       { id: 1, number: 3, name: "Brobbey", positions: ["ST"] },
-      { id: 2, number: 28, name: "E.Le Fee", positions: ["CAM", "CM"] },
+      { id: 2, number: 28, name: "E.Le Fee", positions: ["CAM"] },
       { id: 3, number: 20, name: "Mukiele", positions: ["CB", "RB"] },
       { id: 4, number: 34, name: "Xhaka", positions: ["CDM"] },
       { id: 5, number: 22, name: "Roefs", positions: ["GK"] },
