@@ -711,7 +711,7 @@ export const teams: Team[] = [
       { id: 15, number: 17, name: "Toure", positions: ["RW"] },
       { id: 16, number: 5, name: "Schar", positions: ["CB"] },
       { id: 17, number: 3, name: "J.Murphy", positions: ["RB", "CB"] },
-      { id: 18, number: 7, name: "Joelinton", positions: ["CAM", "CM"] },
+      { id: 18, number: 7, name: "Joelinton", positions: ["CAM"] },
       { id: 19, number: 67, name: "L.Miley", positions: ["CM"] },
       { id: 20, number: 28, name: "Willock", positions: ["CM"] },
       { id: 21, number: 14, name: "Steur", positions: ["CM"] },
