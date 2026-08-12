@@ -262,30 +262,47 @@ showPlayerPositions
 const pitchX = 25
 const pitchY = 25
 
-const pitchWidth = 910
-const pitchHeight = 550
+const pitchWidth = 910   // fixed — formations are calibrated to this
+const pitchHeight = 550  // fixed — formations are calibrated to this
+
+// Two-axis scale so internal markings stay proportionally accurate to
+// Stamford Bridge's real 103m x 67m pitch, without resizing the canvas.
+const SCALE_X = pitchWidth / 103   // ≈ 8.83 px/m along the length
+const SCALE_Y = pitchHeight / 67   // ≈ 8.21 px/m along the width
+const SCALE_AVG = (SCALE_X + SCALE_Y) / 2  // for circular elements
 
 const centerX = pitchX + pitchWidth / 2
 const centerY = pitchY + pitchHeight / 2
 
-// Penalty Areas
+// Grass margin — extra space around the pitch. X gets more room
+// since that's "behind the goal sides" (baselines).
+const grassMarginX = 40
+const grassMarginY = 25
 
-const penaltyDepth = 130
-const penaltyWidth = 260
+// Penalty Areas (40.3m x 16.5m, FIFA standard)
 
-// Six-yard Boxes
+const penaltyDepth = 16.5 * SCALE_X
+const penaltyWidth = 40.3 * SCALE_Y
 
-const sixYardDepth = 50
-const sixYardWidth = 120
+// Six-yard Boxes (18.32m x 5.5m, FIFA standard)
+
+const sixYardDepth = 5.5 * SCALE_X
+const sixYardWidth = 18.32 * SCALE_Y
 
 // Goals
 
-const goalDepth = 12
-const goalWidth = 80
+const goalDepth = 2 * SCALE_X
+const goalWidth = 7.32 * SCALE_Y
 
 // Penalty Spots
 
-const penaltySpotDistance = 80
+const penaltySpotDistance = 11 * SCALE_X
+
+// Center circle (9.15m radius) and corner arcs (1m radius)
+
+const centerCircleRadius = 9.15 * SCALE_AVG
+const cornerArcRadius = 1 * SCALE_AVG
+const penaltyArcRadius = 9.15 * SCALE_AVG  // the "D" — same radius as center circle
 
 const [arrowStart,setArrowStart] = useState<{
   x:number
@@ -568,58 +585,56 @@ onMouseUp={(e)=>{
 {/* Grass */}
 
 <Rect
-
-name="pitch"
-x={pitchX - 20}
-y={pitchY - 20}
-width={pitchWidth + 40}
-height={pitchHeight + 40}
-fill="green"
-listening={false}
-
+  name="pitch"
+  x={pitchX - grassMarginX}
+  y={pitchY - grassMarginY}
+  width={pitchWidth + grassMarginX * 2}
+  height={pitchHeight + grassMarginY * 2}
+  fill="green"
+  listening={false}
 />
 
 {/* Field markings */}
 
 <Rect
-x={pitchX}
-y={pitchY}
-width={pitchWidth}
-height={pitchHeight}
-stroke="white"
-strokeWidth={2}
-listening={false}
+  x={pitchX}
+  y={pitchY}
+  width={pitchWidth}
+  height={pitchHeight}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
 />
 
 <Line
-points={[
-  centerX,
-  pitchY,
-  centerX,
-  pitchY + pitchHeight
-]}
-stroke="white"
-strokeWidth={2}
-listening={false}
+  points={[
+    centerX,
+    pitchY,
+    centerX,
+    pitchY + pitchHeight
+  ]}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
 />
 
 <Circle
-x={centerX}
-y={centerY}
-radius={80}
-stroke="white"
-strokeWidth={2}
-listening={false}
+  x={centerX}
+  y={centerY}
+  radius={centerCircleRadius}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
 />
 
 <Rect
-x={pitchX}
-y={centerY - penaltyWidth / 2}
-width={penaltyDepth}
-height={penaltyWidth}
-stroke="white"
-strokeWidth={2}
-listening={false}
+  x={pitchX}
+  y={centerY - penaltyWidth / 2}
+  width={penaltyDepth}
+  height={penaltyWidth}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
 />
 
 {/* Left 6-yard box */}
@@ -635,13 +650,13 @@ listening={false}
 />
 
 <Rect
-x={pitchX + pitchWidth - penaltyDepth}
-y={centerY - penaltyWidth / 2}
-width={penaltyDepth}
-height={penaltyWidth}
-stroke="white"
-strokeWidth={2}
-listening={false}
+  x={pitchX + pitchWidth - penaltyDepth}
+  y={centerY - penaltyWidth / 2}
+  width={penaltyDepth}
+  height={penaltyWidth}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
 />
 
 {/* Right 6-yard box */}
@@ -657,11 +672,11 @@ listening={false}
 />
 
 <Circle
-x={centerX}
-y={centerY}
-radius={5}
-fill="white"
-listening={false}
+  x={centerX}
+  y={centerY}
+  radius={5}
+  fill="white"
+  listening={false}
 />
 
 {/* Left penalty spot */}
@@ -711,10 +726,10 @@ listening={false}
 {/* Left penalty arc */}
 
 <Arc
-  x={pitchX + penaltySpotDistance +10}
+  x={pitchX + penaltySpotDistance + 1}
   y={centerY}
-  innerRadius={67}
-  outerRadius={67}
+  innerRadius={penaltyArcRadius}
+  outerRadius={penaltyArcRadius}
   angle={106}
   rotation={307}
   stroke="white"
@@ -725,12 +740,66 @@ listening={false}
 {/* Right penalty arc */}
 
 <Arc
-  x={pitchX + pitchWidth - penaltySpotDistance -10}
+  x={pitchX + pitchWidth - penaltySpotDistance - 1}
   y={centerY}
-  innerRadius={67}
-  outerRadius={67}
+  innerRadius={penaltyArcRadius}
+  outerRadius={penaltyArcRadius}
   angle={106}
   rotation={127}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
+/>
+
+{/* Corner arcs (1m radius, quarter circles into the field) */}
+
+{/* Top-left */}
+<Arc
+  x={pitchX}
+  y={pitchY}
+  innerRadius={cornerArcRadius}
+  outerRadius={cornerArcRadius}
+  angle={90}
+  rotation={0}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
+/>
+
+{/* Top-right */}
+<Arc
+  x={pitchX + pitchWidth}
+  y={pitchY}
+  innerRadius={cornerArcRadius}
+  outerRadius={cornerArcRadius}
+  angle={90}
+  rotation={90}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
+/>
+
+{/* Bottom-right */}
+<Arc
+  x={pitchX + pitchWidth}
+  y={pitchY + pitchHeight}
+  innerRadius={cornerArcRadius}
+  outerRadius={cornerArcRadius}
+  angle={90}
+  rotation={180}
+  stroke="white"
+  strokeWidth={2}
+  listening={false}
+/>
+
+{/* Bottom-left */}
+<Arc
+  x={pitchX}
+  y={pitchY + pitchHeight}
+  innerRadius={cornerArcRadius}
+  outerRadius={cornerArcRadius}
+  angle={90}
+  rotation={270}
   stroke="white"
   strokeWidth={2}
   listening={false}
