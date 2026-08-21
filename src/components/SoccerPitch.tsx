@@ -180,8 +180,8 @@ function getDefaultControlPoint(startX: number, startY: number, endX: number, en
 
 function drawArrowhead(context: any, x: number, y: number, angle: number, color: string) {
 
-  const headLength = 12
-  const headWidth = 12
+  const headLength = 16
+  const headWidth = 16
 
   context.save()
   context.translate(x, y)
@@ -982,21 +982,30 @@ onClick={(e)=>{
     return (
       <Shape
         key={arrow.id}
-        sceneFunc={(context, shape) => {
+          sceneFunc={(context, shape) => {
+
+          const headLength = 16
+
+          const endAngle = Math.atan2(arrow.endY - cy, arrow.endX - cx)
+          const startAngle = Math.atan2(arrow.startY - cy, arrow.startX - cx)
+
+          const lineEndX = arrow.style === "line" ? arrow.endX : arrow.endX - Math.cos(endAngle) * headLength
+          const lineEndY = arrow.style === "line" ? arrow.endY : arrow.endY - Math.sin(endAngle) * headLength
+
+          const lineStartX = arrow.style === "double" ? arrow.startX - Math.cos(startAngle) * headLength : arrow.startX
+          const lineStartY = arrow.style === "double" ? arrow.startY - Math.sin(startAngle) * headLength : arrow.startY
 
           context.beginPath()
-          context.moveTo(arrow.startX, arrow.startY)
-          context.quadraticCurveTo(cx, cy, arrow.endX, arrow.endY)
+          context.moveTo(lineStartX, lineStartY)
+          context.quadraticCurveTo(cx, cy, lineEndX, lineEndY)
           context.strokeShape(shape)
 
           if (arrow.style !== "line") {
 
-            const endAngle = Math.atan2(arrow.endY - cy, arrow.endX - cx)
-            drawArrowhead(context, arrow.endX, arrow.endY, endAngle, strokeColor)
+          drawArrowhead(context, arrow.endX, arrow.endY, endAngle, strokeColor)
 
             if (arrow.style === "double") {
-              const startAngle = Math.atan2(arrow.startY - cy, arrow.startX - cx)
-              drawArrowhead(context, arrow.startX, arrow.startY, startAngle, strokeColor)
+            drawArrowhead(context, arrow.startX, arrow.startY, startAngle, strokeColor)
             }
 
           }
