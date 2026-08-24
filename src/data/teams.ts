@@ -230,7 +230,7 @@ export const teams: Team[] = [
       { id: 2, number: 17, name: "Rogers", positions: ["CAM", "LW"] },
       { id: 3, number: 20, name: "Joao Pedro", positions: ["ST", "CAM"] },
       { id: 4, number: 41, name: "Estevao", positions: ["RW", "CAM"] },
-      { id: 5, number: 21, name: "Hato", positions: ["LWB", "LB", "CB"] },
+      { id: 5, number: 21, name: "Hato", positions: ["LWB", "LB"] },
       { id: 6, number: 3, name: "Chavarria", positions: ["LWB", "LB"] },
       { id: 7, number: 7, name: "Neto", positions: ["LW", "RW", "LWB"] },
       { id: 8, number: 23, name: "Lacroix", positions: ["CB"] },
@@ -420,8 +420,8 @@ export const teams: Team[] = [
       { id: 21, number: 6, name: "Reed", positions: ["CDM", "CM"] },
       { id: 22, number: 18, name: "Kusi-Asare", positions: ["ST"] },
       { id: 23, number: 44, name: "Fougerolles", positions: ["CB"] },
-      { id: 23, number: 23, name: "Lecomte", positions: ["GK"] },
-      { id: 24, number: 36, name: "McNally", positions: ["GK"] }
+      { id: 24, number: 23, name: "Lecomte", positions: ["GK"] },
+      { id: 25, number: 36, name: "McNally", positions: ["GK"] }
     ]
   },
 
