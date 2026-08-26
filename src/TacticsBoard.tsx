@@ -194,7 +194,7 @@ function TacticsBoard({ profile, onSwitchProfile }: TacticsBoardProps) {
     return `tacticsBoard_${profile}_${name}`
   }
 
-  function loadSavedSession(): {
+    function loadSavedSession(): {
     homeTeamId?: number | null
     awayTeamId?: number | null
     homeFormation?: string | null
@@ -209,6 +209,17 @@ function TacticsBoard({ profile, onSwitchProfile }: TacticsBoardProps) {
       return {}
     }
   }
+
+  function loadSavedBoardState(): Snapshot | null {
+    try {
+      const stored = localStorage.getItem(storageKey("boardState"))
+      return stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
+  }
+
+  const savedBoardState = loadSavedBoardState()
 
   const [selectedTool, setSelectedTool] = useState("select")
 
@@ -239,7 +250,7 @@ function TacticsBoard({ profile, onSwitchProfile }: TacticsBoardProps) {
 
 const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
 
-  const [players, setPlayers] = useState <
+    const [players, setPlayers] = useState <
     {
       id: number
       rosterId?: number
@@ -253,12 +264,12 @@ const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null)
       numberColor: string
       slotIndex?: number
     }[]
-  >([])
+  >(savedBoardState?.players ?? [])
 
-  const [ballPosition, setBallPosition] = useState<{
+    const [ballPosition, setBallPosition] = useState<{
   x: number
   y: number
-} | null>(null)
+} | null>(savedBoardState?.ballPosition ?? null)
 
 const [arrows, setArrows] = useState <
   {
@@ -273,7 +284,7 @@ const [arrows, setArrows] = useState <
     controlX?: number
     controlY?: number
   }[]
->([])
+>(savedBoardState?.arrows ?? [])
 
 const [texts, setTexts] = useState <
   {
@@ -283,7 +294,7 @@ const [texts, setTexts] = useState <
     text: string
     color: string
   }[]
->([])
+>(savedBoardState?.texts ?? [])
 
 const [rectangles, setRectangles] = useState <
   {
@@ -296,7 +307,7 @@ const [rectangles, setRectangles] = useState <
     color: string
     opacity: number
   }[]
->([])
+>(savedBoardState?.rectangles ?? [])
 
 const [selectedRectStyle, setSelectedRectStyle] =
   useState<"solid" | "dashed">("solid")
@@ -372,6 +383,8 @@ const [showPlayerNames, setShowPlayerNames] = useState(true)
 const [showPlayerPositions, setShowPlayerPositions] = useState(true)
 
 const [showSwapTeam, setShowSwapTeam] = useState(false)
+
+const [showConfirmClear, setShowConfirmClear] = useState(false)
 
 const skipHistory = useRef(false)
 const isFirstRender = useRef(true)
@@ -1249,6 +1262,25 @@ function handleClearSwitch() {
   setSwapSource(null)
 }
 
+function clearProfile() {
+
+  const prefix = `tacticsBoard_${profile}_`
+
+  const keysToRemove: string[] = []
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.startsWith(prefix)) {
+      keysToRemove.push(key)
+    }
+  }
+
+  keysToRemove.forEach((key) => localStorage.removeItem(key))
+
+  window.location.reload()
+
+}
+
 function changeKit(kit: "home" | "away" | "third", side: "home" | "away") {
 
   const team = side === "home" ? homeCurrentTeam : awayCurrentTeam
@@ -1301,6 +1333,18 @@ useEffect(() => {
 }, [homeTeamId, awayTeamId, homeFormation, awayFormation, kitOverrides, focusedSide])
 
 useEffect(() => {
+
+  const boardState: Snapshot = { players, ballPosition, arrows, texts, rectangles }
+
+  localStorage.setItem(storageKey("boardState"), JSON.stringify(boardState))
+
+}, [players, ballPosition, arrows, texts, rectangles])
+
+useEffect(() => {
+
+  if (savedBoardState) {
+    return
+  }
 
   const rebuilt: typeof players = []
 
@@ -1469,11 +1513,27 @@ const benchPlayers = focusedTeam
     <div>
       <h1>Soccer Tactics Board</h1>
 
-      <p>Profile: {profile}</p>
+            <p>Profile: {profile}</p>
 
       <button onClick={onSwitchProfile}>
         Switch Profile
       </button>
+
+      <button onClick={() => setShowConfirmClear(true)}>
+        Clear Profile
+      </button>
+
+      {showConfirmClear && (
+        <span style={{ marginLeft: "10px" }}>
+          Confirm Clear:
+          <button onClick={clearProfile} style={{ marginLeft: "6px" }}>
+            Yes, clear
+          </button>
+          <button onClick={() => setShowConfirmClear(false)} style={{ marginLeft: "6px" }}>
+            No, keep
+          </button>
+        </span>
+      )}
 
       <p>Selected Tool: {selectedTool}</p>
 
