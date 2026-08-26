@@ -11,7 +11,7 @@ function ProfileLogin({ onSelectProfile }: ProfileLoginProps) {
     <div
       style={{
         padding: "40px",
-        maxWidth: "800px",
+        maxWidth: "1200px",
         margin: "0 auto",
         textAlign: "center",
       }}
