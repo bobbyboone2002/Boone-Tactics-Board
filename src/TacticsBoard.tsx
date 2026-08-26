@@ -16,6 +16,7 @@ import PlaysPanel from "./components/PlaysPanel"
 import FramesPanel from "./components/FramesPanel"
 import SwapTeamPanel from "./components/SwapTeamPanel"
 import type { Team } from "./types"
+import MatchSetup from "./components/MatchSetup"
 
 type Snapshot = {
   players: {
@@ -1534,6 +1535,8 @@ const benchPlayers = focusedTeam
           </button>
         </span>
       )}
+
+      <MatchSetup />
 
       <p>Selected Tool: {selectedTool}</p>
 
