@@ -1,19 +1,134 @@
 import { useState, useRef, useEffect } from "react"
 import cv from "@techstark/opencv-js"
 
+type Landmark = {
+  label: string
+  meterX: number
+  meterY: number
+}
+
+type MarkedPoint = Landmark & {
+  pixelX: number
+  pixelY: number
+}
+
+type Calibration = {
+  id: number
+  startTime: number
+  matrix: number[]
+  points: MarkedPoint[]
+}
+
+const LANDMARKS: Landmark[] = [
+  { label: "Center spot", meterX: 51.5, meterY: 33.5 },
+  { label: "Top-left corner flag", meterX: 0, meterY: 0 },
+  { label: "Top-right corner flag", meterX: 103, meterY: 0 },
+  { label: "Bottom-left corner flag", meterX: 0, meterY: 67 },
+  { label: "Bottom-right corner flag", meterX: 103, meterY: 67 },
+  { label: "Left 18-yard box, top corner", meterX: 16.5, meterY: 13.35 },
+  { label: "Left 18-yard box, bottom corner", meterX: 16.5, meterY: 53.65 },
+  { label: "Right 18-yard box, top corner", meterX: 86.5, meterY: 13.35 },
+  { label: "Right 18-yard box, bottom corner", meterX: 86.5, meterY: 53.65 },
+  { label: "Halfway line, top touchline", meterX: 51.5, meterY: 0 },
+  { label: "Halfway line, bottom touchline", meterX: 51.5, meterY: 67 },
+  { label: "Left 6-yard box, top corner", meterX: 5.5, meterY: 24.34 },
+  { label: "Left 6-yard box, bottom corner", meterX: 5.5, meterY: 42.66 },
+  { label: "Right 6-yard box, top corner", meterX: 97.5, meterY: 24.34 },
+  { label: "Right 6-yard box, bottom corner", meterX: 97.5, meterY: 42.66 },
+  { label: "Left penalty spot", meterX: 11, meterY: 33.5 },
+  { label: "Right penalty spot", meterX: 92, meterY: 33.5 },
+  { label: "Left D, top edge (meets 18-yard box)", meterX: 16.5, meterY: 26.19 },
+  { label: "Left D, bottom edge (meets 18-yard box)", meterX: 16.5, meterY: 40.81 },
+  { label: "Right D, top edge (meets 18-yard box)", meterX: 86.5, meterY: 26.19 },
+  { label: "Right D, bottom edge (meets 18-yard box)", meterX: 86.5, meterY: 40.81 }
+]
+
+function applyHomography(matrix: number[], x: number, y: number) {
+  const denom = matrix[6] * x + matrix[7] * y + matrix[8]
+  const px = (matrix[0] * x + matrix[1] * y + matrix[2]) / denom
+  const py = (matrix[3] * x + matrix[4] * y + matrix[5]) / denom
+  return { px, py }
+}
+
+function formatTime(seconds: number) {
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, "0")}`
+}
+
+function loadSavedCalibrations(id: string): Calibration[] {
+  if (!id) {
+    return []
+  }
+  try {
+    const stored = localStorage.getItem(`matchCalibrations_${id}`)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
 function MatchSetup() {
 
+  const [showUploadPanel, setShowUploadPanel] = useState(false)
+  const [matchId, setMatchId] = useState<string>("")
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
   const [isCvReady, setIsCvReady] = useState(false)
+  const [capturedFrame, setCapturedFrame] = useState<HTMLImageElement | null>(null)
+  const [capturedFrameTimestamp, setCapturedFrameTimestamp] = useState<number | null>(null)
+  const [points, setPoints] = useState<MarkedPoint[]>([])
+  const [selectedLandmark, setSelectedLandmark] = useState<string>(LANDMARKS[0].label)
+  const [homographyMatrix, setHomographyMatrix] = useState<number[] | null>(null)
+  const [calibrations, setCalibrations] = useState<Calibration[]>([])
 
+  const cvRef = useRef<any>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    cv.onRuntimeInitialized = () => {
+    const cvPromise = cv as unknown as Promise<any>
+    cvPromise.then((resolvedCv) => {
+      cvRef.current = resolvedCv
       setIsCvReady(true)
-    }
+    })
   }, [])
+
+  useEffect(() => {
+    setCalibrations(loadSavedCalibrations(matchId))
+  }, [matchId])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !capturedFrame) {
+      return
+    }
+    const context = canvas.getContext("2d")
+    if (!context) {
+      return
+    }
+
+    context.drawImage(capturedFrame, 0, 0, canvas.width, canvas.height)
+
+    points.forEach((point) => {
+      context.beginPath()
+      context.arc(point.pixelX, point.pixelY, 6, 0, 2 * Math.PI)
+      context.fillStyle = "red"
+      context.fill()
+      context.strokeStyle = "white"
+      context.lineWidth = 2
+      context.stroke()
+    })
+
+    if (homographyMatrix) {
+      LANDMARKS.forEach((landmark) => {
+        const { px, py } = applyHomography(homographyMatrix, landmark.meterX, landmark.meterY)
+        context.beginPath()
+        context.arc(px, py, 4, 0, 2 * Math.PI)
+        context.fillStyle = "blue"
+        context.fill()
+      })
+    }
+  }, [capturedFrame, points, homographyMatrix])
 
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -22,6 +137,9 @@ function MatchSetup() {
     }
     const url = URL.createObjectURL(file)
     setVideoSrc(url)
+    setCapturedFrame(null)
+    setPoints([])
+    setHomographyMatrix(null)
   }
 
   function handleLoadedMetadata() {
@@ -42,24 +160,163 @@ function MatchSetup() {
       return
     }
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const image = new Image()
+    image.onload = () => {
+      setCapturedFrame(image)
+    }
+    image.src = canvas.toDataURL()
+
+    setCapturedFrameTimestamp(video.currentTime)
+    setPoints([])
+    setHomographyMatrix(null)
+  }
+
+  function handleCanvasClick(event: React.MouseEvent<HTMLCanvasElement>) {
+    const canvas = canvasRef.current
+    if (!canvas || !capturedFrame) {
+      return
+    }
+
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+
+    const pixelX = (event.clientX - rect.left) * scaleX
+    const pixelY = (event.clientY - rect.top) * scaleY
+
+    const landmark = LANDMARKS.find((l) => l.label === selectedLandmark)
+    if (!landmark) {
+      return
+    }
+
+    setPoints((current) => {
+      const withoutThisLandmark = current.filter((p) => p.label !== landmark.label)
+      return [...withoutThisLandmark, { ...landmark, pixelX, pixelY }]
+    })
+  }
+
+  function removePoint(label: string) {
+    setPoints((current) => current.filter((p) => p.label !== label))
+  }
+
+  function computeHomography() {
+    const cvInstance = cvRef.current
+    if (!cvInstance || points.length < 4) {
+      return
+    }
+
+    const srcArray = points.flatMap((p) => [p.meterX, p.meterY])
+    const dstArray = points.flatMap((p) => [p.pixelX, p.pixelY])
+
+    const srcMat = cvInstance.matFromArray(points.length, 1, cvInstance.CV_32FC2, srcArray)
+    const dstMat = cvInstance.matFromArray(points.length, 1, cvInstance.CV_32FC2, dstArray)
+
+    const homography = cvInstance.findHomography(srcMat, dstMat)
+    const matrixData = Array.from(homography.data64F as Float64Array)
+
+    setHomographyMatrix(matrixData)
+
+    srcMat.delete()
+    dstMat.delete()
+    homography.delete()
+  }
+
+  function saveCalibration() {
+    if (!homographyMatrix || capturedFrameTimestamp === null) {
+      return
+    }
+
+    const newCalibration: Calibration = {
+      id: Date.now(),
+      startTime: capturedFrameTimestamp,
+      matrix: homographyMatrix,
+      points
+    }
+
+    setCalibrations((current) => {
+      const updated = [...current, newCalibration].sort((a, b) => a.startTime - b.startTime)
+      localStorage.setItem(`matchCalibrations_${matchId}`, JSON.stringify(updated))
+      return updated
+    })
+
+    setCapturedFrame(null)
+    setCapturedFrameTimestamp(null)
+    setPoints([])
+    setHomographyMatrix(null)
+  }
+
+  function deleteCalibration(id: number) {
+    setCalibrations((current) => {
+      const updated = current.filter((c) => c.id !== id)
+      localStorage.setItem(`matchCalibrations_${matchId}`, JSON.stringify(updated))
+      return updated
+    })
+  }
+
+  function exportCalibrations() {
+    const exportData = {
+      matchId,
+      calibrations: calibrations.map((c) => ({
+        startTime: c.startTime,
+        matrix: c.matrix
+      }))
+    }
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${matchId}_calibration.json`
+    link.click()
+
+    URL.revokeObjectURL(url)
+  }
+
+  const markedLabels = new Set(points.map((p) => p.label))
+  const remainingLandmarks = LANDMARKS.filter((l) => !markedLabels.has(l.label))
+
+  if (!showUploadPanel) {
+    return (
+      <div>
+        <button onClick={() => setShowUploadPanel(true)}>
+          Match Upload
+        </button>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <h2>Match Setup</h2>
+    <div style={{ position: "relative" }}>
+      <button onClick={() => setShowUploadPanel(false)}>
+        Close
+      </button>
 
-      {!isCvReady && <p></p>}
+      {!isCvReady && <p>Loading OpenCV...</p>}
 
-      <input type="file" accept="video/*" onChange={handleFileSelect} />
+      <div style={{ marginTop: "10px" }}>
+        <label>
+          Match name: <input
+            type="text"
+            value={matchId}
+            onChange={(e) => setMatchId(e.target.value)}
+            placeholder="FULvsCHE-20260824"
+          />
+        </label>
+
+      <div style={{ marginTop: "10px" }}>
+        <input type="file" accept="video/*" onChange={handleFileSelect} disabled={!matchId} />
+      </div>
 
       {videoSrc && (
-        <div>
+        <div style={{ position: "relative" }}>
           <video
             ref={videoRef}
             src={videoSrc}
             controls
             onLoadedMetadata={handleLoadedMetadata}
-            style={{ maxWidth: "600px", display: "block" }}
+            style={{ position: "relative", maxWidth: "600px", display: "block" }}
           />
 
           <button onClick={captureFrame} disabled={!isCvReady}>
@@ -68,10 +325,87 @@ function MatchSetup() {
 
           <canvas
             ref={canvasRef}
-            style={{ border: "1px solid black", maxWidth: "600px", marginTop: "10px" }}
+            onClick={handleCanvasClick}
+            style={{
+              position: "relative",
+              top: "auto",
+              left: "auto",
+              border: "1px solid black",
+              maxWidth: "600px",
+              marginTop: "10px",
+              display: "block",
+              cursor: capturedFrame ? "crosshair" : "default"
+            }}
           />
+
+          {capturedFrame && (
+            <div style={{ marginTop: "10px" }}>
+              <p>Frame captured at {formatTime(capturedFrameTimestamp ?? 0)}</p>
+
+              <label>
+                Landmark to mark next:{" "}
+                <select
+                  value={selectedLandmark}
+                  onChange={(e) => setSelectedLandmark(e.target.value)}
+                >
+                  {remainingLandmarks.map((l) => (
+                    <option key={l.label} value={l.label}>
+                      {l.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <ul>
+                {points.map((point) => (
+                  <li key={point.label}>
+                    {point.label} — ({Math.round(point.pixelX)}, {Math.round(point.pixelY)})
+                    <button onClick={() => removePoint(point.label)} style={{ marginLeft: "8px" }}>
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <p>{points.length} of {LANDMARKS.length} landmarks marked</p>
+
+              <button onClick={computeHomography} disabled={points.length < 4}>
+                Compute Homography
+              </button>
+
+              <button onClick={saveCalibration} disabled={!homographyMatrix} style={{ marginLeft: "8px" }}>
+                Save Calibration
+              </button>
+            </div>
+          )}
+
+          {calibrations.length > 0 && (
+            <div style={{ marginTop: "20px" }}>
+              <h3>Saved Calibrations</h3>
+              <ul>
+                {calibrations.map((cal, index) => {
+                  const nextCal = calibrations[index + 1]
+                  const validUntil = nextCal ? formatTime(nextCal.startTime) : "end of video"
+                  return (
+                    <li key={cal.id}>
+                      Valid from {formatTime(cal.startTime)} to {validUntil} ({cal.points.length} points)
+                      <button onClick={() => deleteCalibration(cal.id)} style={{ marginLeft: "8px" }}>
+                        Delete
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       )}
+    </div>
+
+    <button onClick={exportCalibrations} disabled={calibrations.length === 0} style={{ marginTop: "10px" }}>
+        Export calibration.json
+      </button>
+
     </div>
   )
 }
