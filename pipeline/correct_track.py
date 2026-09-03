@@ -68,7 +68,7 @@ for frame_idx in range(start_frame_idx, len(frame_files)):
             break
 
     x, y, w, h = box
-    cx, cy = x + w / 2, y + h / 2
+    cx, cy = x + w / 2, y + h
 
     if last_position:
         jump = np.hypot(cx - last_position[0], cy - last_position[1])

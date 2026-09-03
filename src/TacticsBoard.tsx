@@ -17,6 +17,7 @@ import FramesPanel from "./components/FramesPanel"
 import SwapTeamPanel from "./components/SwapTeamPanel"
 import type { Team } from "./types"
 import MatchSetup from "./components/MatchSetup"
+import VideoTracker from "./components/VideoTracker"
 
 type Snapshot = {
   players: {
@@ -1513,6 +1514,10 @@ const benchPlayers = focusedTeam
   return (
     <div>
       <h1>Soccer Tactics Board</h1>
+
+      <VideoTracker />
+
+      <p>Profile: {profile}</p>
 
             <p>Profile: {profile}</p>
 
