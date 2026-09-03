@@ -21,6 +21,8 @@ type Calibration = {
 
 const LANDMARKS: Landmark[] = [
   { label: "Center spot", meterX: 51.5, meterY: 33.5 },
+  { label: "Center circle, top intersection with halfway line", meterX: 51.5, meterY: 24.35 },
+  { label: "Center circle, bottom intersection with halfway line", meterX: 51.5, meterY: 42.65 },
   { label: "Top-left corner flag", meterX: 0, meterY: 0 },
   { label: "Top-right corner flag", meterX: 103, meterY: 0 },
   { label: "Bottom-left corner flag", meterX: 0, meterY: 67 },
@@ -215,6 +217,13 @@ function MatchSetup() {
     const homography = cvInstance.findHomography(srcMat, dstMat)
     const matrixData = Array.from(homography.data64F as Float64Array)
 
+    if (matrixData.length !== 9) {
+      alert("Homography computation failed — try marking points that are more spread out across the frame, not clustered in a line.")
+      setHomographyMatrix(null)
+    } else {
+      setHomographyMatrix(matrixData)
+    }
+
     setHomographyMatrix(matrixData)
 
     srcMat.delete()
@@ -373,7 +382,7 @@ function MatchSetup() {
                 Compute Homography
               </button>
 
-              <button onClick={saveCalibration} disabled={!homographyMatrix} style={{ marginLeft: "8px" }}>
+              <button onClick={saveCalibration} disabled={!homographyMatrix || homographyMatrix.length !== 9} style={{ marginLeft: "8px" }}>
                 Save Calibration
               </button>
             </div>
