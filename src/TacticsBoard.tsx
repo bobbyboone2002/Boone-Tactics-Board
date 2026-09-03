@@ -1519,8 +1519,6 @@ const benchPlayers = focusedTeam
 
       <p>Profile: {profile}</p>
 
-            <p>Profile: {profile}</p>
-
       <button onClick={onSwitchProfile}>
         Switch Profile
       </button>
