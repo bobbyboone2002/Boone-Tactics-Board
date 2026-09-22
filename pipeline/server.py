@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+import re
 import cv2
 import numpy as np
 import json
@@ -9,33 +10,47 @@ app = Flask(__name__)
 CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "uploaded_clips")
-FRAMES_DIR = os.path.join(BASE_DIR, "frames")
-TRACKING_PATH = os.path.join(BASE_DIR, "tracking.json")
-CALIBRATION_PATH = os.path.join(BASE_DIR, "calibration.json")
-
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(FRAMES_DIR, exist_ok=True)
+CLIPS_DIR = os.path.join(BASE_DIR, "clips")
+os.makedirs(CLIPS_DIR, exist_ok=True)
 
 TARGET_FPS = 20
 BOX_SIZE = 30
 MAX_JUMP_PIXELS = 80
 
 
-def clear_frames_dir():
-    for f in os.listdir(FRAMES_DIR):
-        os.remove(os.path.join(FRAMES_DIR, f))
+def safe_name(name):
+    return re.sub(r"[^a-zA-Z0-9_-]", "_", name)
+
+
+def clip_dir(profile, clip):
+    path = os.path.join(CLIPS_DIR, safe_name(profile), safe_name(clip))
+    os.makedirs(path, exist_ok=True)
+    os.makedirs(os.path.join(path, "frames"), exist_ok=True)
+    return path
+
+
+def get_params(source):
+    profile = source.get("profile")
+    clip = source.get("clip")
+    if not profile or not clip:
+        raise ValueError("profile and clip are required")
+    return profile, clip
 
 
 @app.route("/upload_video", methods=["POST"])
 def upload_video():
+    profile, clip = get_params(request.form)
+    directory = clip_dir(profile, clip)
+
     file = request.files["video"]
-    save_path = os.path.join(UPLOAD_DIR, "match.mp4")
-    file.save(save_path)
+    video_path = os.path.join(directory, "clip.mp4")
+    file.save(video_path)
 
-    clear_frames_dir()
+    frames_dir = os.path.join(directory, "frames")
+    for f in os.listdir(frames_dir):
+        os.remove(os.path.join(frames_dir, f))
 
-    cap = cv2.VideoCapture(save_path)
+    cap = cv2.VideoCapture(video_path)
     source_fps = cap.get(cv2.CAP_PROP_FPS)
     stride = max(1, round(source_fps / TARGET_FPS))
 
@@ -46,7 +61,7 @@ def upload_video():
         if not success:
             break
         if frame_index % stride == 0:
-            cv2.imwrite(os.path.join(FRAMES_DIR, f"{saved_index:05d}.jpg"), frame)
+            cv2.imwrite(os.path.join(frames_dir, f"{saved_index:05d}.jpg"), frame)
             saved_index += 1
         frame_index += 1
     cap.release()
@@ -56,23 +71,41 @@ def upload_video():
 
 @app.route("/upload_calibration", methods=["POST"])
 def upload_calibration():
-    file = request.files["calibration"]
-    file.save(CALIBRATION_PATH)
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+
+    calibration_data = request.json
+    with open(os.path.join(directory, "calibration.json"), "w") as f:
+        json.dump(calibration_data, f)
+
     return jsonify({"status": "ok"})
 
 
-@app.route("/video/<filename>")
-def get_video(filename):
-    return send_from_directory(UPLOAD_DIR, filename)
+@app.route("/video/<profile>/<clip>")
+def get_video(profile, clip):
+    directory = clip_dir(profile, clip)
+    return send_from_directory(directory, "clip.mp4")
 
 
-@app.route("/frame/<int:frame_index>")
-def get_frame(frame_index):
-    return send_from_directory(FRAMES_DIR, f"{frame_index:05d}.jpg")
+@app.route("/frame/<profile>/<clip>/<int:frame_index>")
+def get_frame(profile, clip, frame_index):
+    directory = clip_dir(profile, clip)
+    return send_from_directory(os.path.join(directory, "frames"), f"{frame_index:05d}.jpg")
 
 
-def load_homography(timestamp):
-    with open(CALIBRATION_PATH) as f:
+@app.route("/clips")
+def list_clips():
+    profile = request.args.get("profile")
+    if not profile:
+        return jsonify([])
+    profile_dir = os.path.join(CLIPS_DIR, safe_name(profile))
+    if not os.path.exists(profile_dir):
+        return jsonify([])
+    return jsonify(sorted(os.listdir(profile_dir)))
+
+
+def load_homography(directory, timestamp):
+    with open(os.path.join(directory, "calibration.json")) as f:
         data = json.load(f)
     calibrations = sorted(data["calibrations"], key=lambda c: c["startTime"])
     matrix = calibrations[0]["matrix"]
@@ -91,29 +124,40 @@ def pixel_to_meters(inv_matrix, px, py):
     return float(result[0]), float(result[1])
 
 
-def load_tracking():
-    if os.path.exists(TRACKING_PATH):
-        with open(TRACKING_PATH) as f:
+def tracking_path(directory):
+    return os.path.join(directory, "tracking.json")
+
+
+def load_tracking(directory):
+    path = tracking_path(directory)
+    if os.path.exists(path):
+        with open(path) as f:
             return json.load(f)
     return {"frames": []}
 
 
-def save_tracking(data):
-    with open(TRACKING_PATH, "w") as f:
+def save_tracking(directory, data):
+    with open(tracking_path(directory), "w") as f:
         json.dump(data, f)
 
 
 @app.route("/tracking", methods=["GET"])
 def get_tracking():
-    return jsonify(load_tracking())
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+    return jsonify(load_tracking(directory))
 
 
 @app.route("/initial_track", methods=["POST"])
 def initial_track():
-    selections = request.json["selections"]  # [{label, x, y}] all on frame 0
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+    frames_dir = os.path.join(directory, "frames")
 
-    frame_files = sorted(os.listdir(FRAMES_DIR))
-    first_frame = cv2.imread(os.path.join(FRAMES_DIR, frame_files[0]))
+    selections = request.json["selections"]
+
+    frame_files = sorted(os.listdir(frames_dir))
+    first_frame = cv2.imread(os.path.join(frames_dir, frame_files[0]))
 
     trackers, labels, active = [], [], []
     for sel in selections:
@@ -144,7 +188,7 @@ def initial_track():
             last_position[label] = (cx, cy)
 
             timestamp = frame_idx / TARGET_FPS
-            inv = np.linalg.inv(load_homography(timestamp))
+            inv = np.linalg.inv(load_homography(directory, timestamp))
             mx, my = pixel_to_meters(inv, cx, cy)
 
             detections.append({"label": label, "pixelX": cx, "pixelY": cy, "meterX": mx, "meterY": my})
@@ -154,7 +198,7 @@ def initial_track():
     record(0, initial_boxes)
 
     for frame_idx in range(1, len(frame_files)):
-        frame = cv2.imread(os.path.join(FRAMES_DIR, frame_files[frame_idx]))
+        frame = cv2.imread(os.path.join(frames_dir, frame_files[frame_idx]))
         boxes = []
         for i, tracker in enumerate(trackers):
             if not active[i]:
@@ -166,32 +210,36 @@ def initial_track():
             boxes.append(bbox if success else (0, 0, 0, 0))
         record(frame_idx, boxes)
 
-    save_tracking(tracking_data)
+    save_tracking(directory, tracking_data)
     return jsonify(tracking_data)
 
 
 @app.route("/correct_track", methods=["POST"])
 def correct_track_endpoint():
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+    frames_dir = os.path.join(directory, "frames")
+
     body = request.json
     label = body["label"]
     start_frame_idx = body["frameIndex"]
     click_x = body["x"]
     click_y = body["y"]
 
-    frame_files = sorted(os.listdir(FRAMES_DIR))
-    frame = cv2.imread(os.path.join(FRAMES_DIR, frame_files[start_frame_idx]))
+    frame_files = sorted(os.listdir(frames_dir))
+    frame = cv2.imread(os.path.join(frames_dir, frame_files[start_frame_idx]))
 
     bbox = (click_x - BOX_SIZE, click_y - BOX_SIZE, BOX_SIZE * 2, BOX_SIZE * 2)
     tracker = cv2.legacy.TrackerCSRT_create()
     tracker.init(frame, bbox)
 
-    tracking_data = load_tracking()
+    tracking_data = load_tracking(directory)
     frames_by_index = {fe["frameIndex"]: fe for fe in tracking_data["frames"]}
 
     last_position = None
 
     for frame_idx in range(start_frame_idx, len(frame_files)):
-        current_frame = cv2.imread(os.path.join(FRAMES_DIR, frame_files[frame_idx]))
+        current_frame = cv2.imread(os.path.join(frames_dir, frame_files[frame_idx]))
 
         if frame_idx == start_frame_idx:
             box = bbox
@@ -210,7 +258,7 @@ def correct_track_endpoint():
         last_position = (cx, cy)
 
         timestamp = frame_idx / TARGET_FPS
-        inv = np.linalg.inv(load_homography(timestamp))
+        inv = np.linalg.inv(load_homography(directory, timestamp))
         mx, my = pixel_to_meters(inv, cx, cy)
 
         if frame_idx not in frames_by_index:
@@ -225,11 +273,10 @@ def correct_track_endpoint():
         })
 
     tracking_data["frames"].sort(key=lambda fe: fe["frameIndex"])
-    save_tracking(tracking_data)
+    save_tracking(directory, tracking_data)
 
     return jsonify(tracking_data)
 
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
-    

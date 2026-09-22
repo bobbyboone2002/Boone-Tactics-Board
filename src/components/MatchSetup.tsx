@@ -19,6 +19,8 @@ type Calibration = {
   points: MarkedPoint[]
 }
 
+const API_BASE = "http://localhost:5001"
+
 const LANDMARKS: Landmark[] = [
   { label: "Center spot", meterX: 51.5, meterY: 33.5 },
   { label: "Center circle, top intersection with halfway line", meterX: 51.5, meterY: 24.35 },
@@ -70,10 +72,9 @@ function loadSavedCalibrations(id: string): Calibration[] {
   }
 }
 
-function MatchSetup() {
+function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: string; setClipId: (id: string) => void }) {
 
   const [showUploadPanel, setShowUploadPanel] = useState(false)
-  const [matchId, setMatchId] = useState<string>("")
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
   const [isCvReady, setIsCvReady] = useState(false)
   const [capturedFrame, setCapturedFrame] = useState<HTMLImageElement | null>(null)
@@ -96,8 +97,8 @@ function MatchSetup() {
   }, [])
 
   useEffect(() => {
-    setCalibrations(loadSavedCalibrations(matchId))
-  }, [matchId])
+    setCalibrations(loadSavedCalibrations(clipId))
+  }, [clipId])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -132,17 +133,23 @@ function MatchSetup() {
     }
   }, [capturedFrame, points, homographyMatrix])
 
-  function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) {
-      return
-    }
-    const url = URL.createObjectURL(file)
-    setVideoSrc(url)
-    setCapturedFrame(null)
-    setPoints([])
-    setHomographyMatrix(null)
+  async function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files?.[0]
+  if (!file) {
+    return
   }
+  const url = URL.createObjectURL(file)
+  setVideoSrc(url)
+  setCapturedFrame(null)
+  setPoints([])
+  setHomographyMatrix(null)
+
+  const formData = new FormData()
+  formData.append("video", file)
+  formData.append("profile", profile)
+  formData.append("clip", clipId)
+  await fetch(`${API_BASE}/upload_video`, { method: "POST", body: formData })
+}
 
   function handleLoadedMetadata() {
     if (videoRef.current && canvasRef.current) {
@@ -224,8 +231,6 @@ function MatchSetup() {
       setHomographyMatrix(matrixData)
     }
 
-    setHomographyMatrix(matrixData)
-
     srcMat.delete()
     dstMat.delete()
     homography.delete()
@@ -245,7 +250,7 @@ function MatchSetup() {
 
     setCalibrations((current) => {
       const updated = [...current, newCalibration].sort((a, b) => a.startTime - b.startTime)
-      localStorage.setItem(`matchCalibrations_${matchId}`, JSON.stringify(updated))
+      localStorage.setItem(`matchCalibrations_${clipId}`, JSON.stringify(updated))
       return updated
     })
 
@@ -258,29 +263,23 @@ function MatchSetup() {
   function deleteCalibration(id: number) {
     setCalibrations((current) => {
       const updated = current.filter((c) => c.id !== id)
-      localStorage.setItem(`matchCalibrations_${matchId}`, JSON.stringify(updated))
+      localStorage.setItem(`matchCalibrations_${clipId}`, JSON.stringify(updated))
       return updated
     })
   }
 
-  function exportCalibrations() {
-    const exportData = {
-      matchId,
-      calibrations: calibrations.map((c) => ({
-        startTime: c.startTime,
-        matrix: c.matrix
-      }))
-    }
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `${matchId}_calibration.json`
-    link.click()
-
-    URL.revokeObjectURL(url)
+  async function saveCalibrationsToBackend() {
+    await fetch(`${API_BASE}/upload_calibration?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clipId,
+        calibrations: calibrations.map((c) => ({
+          startTime: c.startTime,
+          matrix: c.matrix
+        }))
+      })
+    })
   }
 
   const markedLabels = new Set(points.map((p) => p.label))
@@ -308,14 +307,15 @@ function MatchSetup() {
         <label>
           Match name: <input
             type="text"
-            value={matchId}
-            onChange={(e) => setMatchId(e.target.value)}
+            value={clipId}
+            onChange={(e) => setClipId(e.target.value)}
             placeholder="FULvsCHE-20260824"
           />
         </label>
+      </div>
 
       <div style={{ marginTop: "10px" }}>
-        <input type="file" accept="video/*" onChange={handleFileSelect} disabled={!matchId} />
+        <input type="file" accept="video/*" onChange={handleFileSelect} disabled={!clipId} />
       </div>
 
       {videoSrc && (
@@ -409,12 +409,10 @@ function MatchSetup() {
           )}
         </div>
       )}
-    </div>
 
-    <button onClick={exportCalibrations} disabled={calibrations.length === 0} style={{ marginTop: "10px" }}>
-        Export calibration.json
+      <button onClick={saveCalibrationsToBackend} disabled={calibrations.length === 0} style={{ marginTop: "10px" }}>
+        Save Calibration to Clip
       </button>
-
     </div>
   )
 }

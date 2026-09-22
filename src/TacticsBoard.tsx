@@ -225,6 +225,8 @@ function TacticsBoard({ profile, onSwitchProfile }: TacticsBoardProps) {
 
   const [selectedTool, setSelectedTool] = useState("select")
 
+  const [clipId, setClipId] = useState<string>("")
+
   const [homeTeamId, setHomeTeamId] = useState<number | null>(() => loadSavedSession().homeTeamId ?? null)
   const [awayTeamId, setAwayTeamId] = useState<number | null>(() => loadSavedSession().awayTeamId ?? null)
 
@@ -1494,6 +1496,12 @@ const currentText = texts.find(
 const homeCurrentTeam = teams.find((team) => team.id === homeTeamId) ?? null
 const awayCurrentTeam = teams.find((team) => team.id === awayTeamId) ?? null
 
+const rosterOptions = [
+  ...(homeCurrentTeam?.roster.map((p) => ({ label: `home_${p.number}`, name: p.name })) ?? []),
+  ...(awayCurrentTeam?.roster.map((p) => ({ label: `away_${p.number}`, name: p.name })) ?? []),
+  { label: "ball", name: "Ball" }
+]
+
 const focusedTeam = focusedSide === "home" ? homeCurrentTeam : awayCurrentTeam
 
 const currentPlayNames = homeTeamId !== null ? playNamesByTeam[homeTeamId] ?? [] : []
@@ -1515,7 +1523,7 @@ const benchPlayers = focusedTeam
     <div>
       <h1>Soccer Tactics Board</h1>
 
-      <VideoTracker />
+      <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} />
 
       <p>Profile: {profile}</p>
 
@@ -1539,7 +1547,7 @@ const benchPlayers = focusedTeam
         </span>
       )}
 
-      <MatchSetup />
+      <MatchSetup profile={profile} clipId={clipId} setClipId={setClipId} />
 
       <p>Selected Tool: {selectedTool}</p>
 
