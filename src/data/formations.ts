@@ -28,9 +28,9 @@ export const formations: Record<string, Slot[]> = {
     { role: "LB", x: 220, y: 100 },
     { role: "CDM", x: 285, y: 360 },
     { role: "CM", x: 285, y: 240 },
-    { role: "CAM", x: 360, y: 300 },
     { role: "LW", x: 360, y: 140 },
     { role: "RW", x: 360, y: 460 },
+    { role: "CAM", x: 360, y: 300 },
     { role: "ST", x: 430, y: 300 }
   ],
 
@@ -84,9 +84,9 @@ export const formations: Record<string, Slot[]> = {
     { role: "LB", x: 220, y: 100 },
     { role: "CDM", x: 285, y: 300 },
     { role: "CM", x: 360, y: 200 },
-    { role: "CAM", x: 360, y: 400 },
     { role: "LW", x: 360, y: 80 },
     { role: "ST", x: 430, y: 300 },
+    { role: "CAM", x: 360, y: 400 },
     { role: "RW", x: 360, y: 520 }
   ],
 
@@ -182,8 +182,8 @@ export const formations: Record<string, Slot[]> = {
     { role: "CDM", x: 285, y: 250 },
     { role: "CM", x: 285, y: 350 },
     { role: "CM", x: 360, y: 200 },
-    { role: "CAM", x: 360, y: 400 },
     { role: "LW", x: 360, y: 80 },
+    { role: "CAM", x: 360, y: 400 },
     { role: "ST", x: 430, y: 300 },
     { role: "RW", x: 360, y: 520 }
   ],
