@@ -42,10 +42,10 @@ export const formations: Record<string, Slot[]> = {
     { role: "LB", x: 220, y: 100 },
     { role: "CDM", x: 285, y: 360 },
     { role: "CM", x: 285, y: 240 },
-    { role: "LW", x: 360, y: 80 },
-    { role: "RW", x: 360, y: 520 },
     { role: "ST", x: 430, y: 240 },
-    { role: "ST", x: 430, y: 360 }
+    { role: "ST", x: 430, y: 360 },
+    { role: "LW", x: 360, y: 80 },
+    { role: "RW", x: 360, y: 520 }
   ],
 
   "4-5-1": [
