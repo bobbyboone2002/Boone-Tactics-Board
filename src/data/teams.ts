@@ -326,7 +326,7 @@ export const teams: Team[] = [
       { id: 8, number: 5, name: "Disasi", positions: ["CB"] },
       { id: 9, number: 21, name: "Ahanor", positions: ["CB"] },
       { id: 10, number: 6, name: "Canvot", positions: ["CB"] },
-      { id: 11, number: 18, name: "Kamada", positions: ["CM", "CAM"] },
+      { id: 11, number: 18, name: "Kamada", positions: ["CAM", "CM"] },
       { id: 12, number: 11, name: "McNeil", positions: ["RW"] },
       { id: 13, number: 10, name: "Pino", positions: ["LW"] },
       { id: 14, number: 7, name: "Sarr", positions: ["RW", "CAM"] },
