@@ -99,9 +99,9 @@ export const formations: Record<string, Slot[]> = {
     { role: "ST", x: 430, y: 240 },
     { role: "ST", x: 430, y: 360 },
     { role: "CDM", x: 285, y: 300 },
+    { role: "CAM", x: 360, y: 300 },
     { role: "LW", x: 360, y: 140 },
-    { role: "RW", x: 360, y: 460 },
-    { role: "CAM", x: 360, y: 300 }
+    { role: "RW", x: 360, y: 460 }
   ],
 
   "4-3-2-1": [
