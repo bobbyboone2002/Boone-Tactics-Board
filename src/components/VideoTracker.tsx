@@ -102,7 +102,7 @@ function VideoTracker({ profile, clipId, rosterOptions }: VideoTrackerProps) {
   const currentDetections = trackingData?.frames.find((f) => f.frameIndex === currentFrameIndex)?.detections ?? []
 
   if (!clipId) {
-    return <p>Enter a clip name above to begin tracking.</p>
+    return <p></p>
   }
 
   return (

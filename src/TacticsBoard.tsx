@@ -1523,8 +1523,6 @@ const benchPlayers = focusedTeam
     <div>
       <h1>Soccer Tactics Board</h1>
 
-      <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} />
-
       <p>Profile: {profile}</p>
 
       <button onClick={onSwitchProfile}>
@@ -1546,6 +1544,8 @@ const benchPlayers = focusedTeam
           </button>
         </span>
       )}
+
+      <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} />
 
       <MatchSetup profile={profile} clipId={clipId} setClipId={setClipId} />
 

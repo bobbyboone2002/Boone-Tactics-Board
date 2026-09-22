@@ -289,7 +289,7 @@ function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: s
     return (
       <div>
         <button onClick={() => setShowUploadPanel(true)}>
-          Match Upload
+          Video Upload
         </button>
       </div>
     )
@@ -305,11 +305,11 @@ function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: s
 
       <div style={{ marginTop: "10px" }}>
         <label>
-          Match name: <input
+          Video name: <input
             type="text"
             value={clipId}
             onChange={(e) => setClipId(e.target.value)}
-            placeholder="FULvsCHE-20260824"
+            placeholder="FUL.CHE(1-0)20260824"
           />
         </label>
       </div>
