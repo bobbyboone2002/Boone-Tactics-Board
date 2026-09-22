@@ -32,7 +32,7 @@ export const teams: Team[] = [
       { id: 17, number: 5, name: "Hincapie", positions: ["CB", "LB"] },
       { id: 18, number: 23, name: "Merino", positions: ["ST"] },
       { id: 19, number: 4, name: "White", positions: ["RB", "CB"] },
-      { id: 20, number: 36, name: "Zubimendi", positions: ["CDM"] },
+      { id: 20, number: 36, name: "Zubimendi", positions: ["CDM", "CM"] },
       { id: 21, number: 56, name: "Dowman", positions: ["RW"] },
       { id: 22, number: 1, name: "Raya", positions: ["GK"] },
       { id: 23, number: 13, name: "Kepa", positions: ["GK"] },
