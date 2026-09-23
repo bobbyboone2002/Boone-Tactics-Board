@@ -27,9 +27,10 @@ type VideoTrackerProps = {
   profile: string
   clipId: string
   rosterOptions: RosterOption[]
+  videoReady: boolean
 }
 
-function VideoTracker({ profile, clipId, rosterOptions }: VideoTrackerProps) {
+function VideoTracker({ profile, clipId, rosterOptions, videoReady }: VideoTrackerProps) {
   const fps = 20
   const [selections, setSelections] = useState<Selection[]>([])
   const [pendingLabel, setPendingLabel] = useState(rosterOptions[0]?.label ?? "")
@@ -101,8 +102,8 @@ function VideoTracker({ profile, clipId, rosterOptions }: VideoTrackerProps) {
   const currentFrameIndex = Math.round(currentTime * fps)
   const currentDetections = trackingData?.frames.find((f) => f.frameIndex === currentFrameIndex)?.detections ?? []
 
-  if (!clipId) {
-    return <p></p>
+  if (!clipId || !videoReady) {
+    return null
   }
 
   return (

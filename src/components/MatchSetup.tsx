@@ -72,7 +72,14 @@ function loadSavedCalibrations(id: string): Calibration[] {
   }
 }
 
-function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: string; setClipId: (id: string) => void }) {
+type MatchSetupProps = {
+  profile: string
+  clipId: string
+  setClipId: (id: string) => void
+  onVideoUploaded: () => void
+}
+
+function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupProps) {
 
   const [showUploadPanel, setShowUploadPanel] = useState(false)
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
@@ -134,22 +141,29 @@ function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: s
   }, [capturedFrame, points, homographyMatrix])
 
   async function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
-  const file = event.target.files?.[0]
-  if (!file) {
-    return
-  }
-  const url = URL.createObjectURL(file)
-  setVideoSrc(url)
-  setCapturedFrame(null)
-  setPoints([])
-  setHomographyMatrix(null)
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+    const url = URL.createObjectURL(file)
+    setVideoSrc(url)
+    setCapturedFrame(null)
+    setPoints([])
+    setHomographyMatrix(null)
 
-  const formData = new FormData()
-  formData.append("video", file)
-  formData.append("profile", profile)
-  formData.append("clip", clipId)
-  await fetch(`${API_BASE}/upload_video`, { method: "POST", body: formData })
-}
+    const formData = new FormData()
+    formData.append("video", file)
+    formData.append("profile", profile)
+    formData.append("clip", clipId)
+
+    const res = await fetch(`${API_BASE}/upload_video`, { method: "POST", body: formData })
+
+    if (res.ok) {
+      onVideoUploaded()
+    } else {
+      alert(`Upload failed (status ${res.status}). Check the server.py terminal for details.`)
+    }
+  }
 
   function handleLoadedMetadata() {
     if (videoRef.current && canvasRef.current) {

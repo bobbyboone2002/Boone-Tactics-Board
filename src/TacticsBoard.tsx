@@ -227,6 +227,8 @@ function TacticsBoard({ profile, onSwitchProfile }: TacticsBoardProps) {
 
   const [clipId, setClipId] = useState<string>("")
 
+  const [videoUploaded, setVideoUploaded] = useState(false)
+
   const [homeTeamId, setHomeTeamId] = useState<number | null>(() => loadSavedSession().homeTeamId ?? null)
   const [awayTeamId, setAwayTeamId] = useState<number | null>(() => loadSavedSession().awayTeamId ?? null)
 
@@ -1545,9 +1547,14 @@ const benchPlayers = focusedTeam
         </span>
       )}
 
-      <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} />
+    <MatchSetup
+      profile={profile}
+      clipId={clipId}
+      setClipId={(id) => { setClipId(id); setVideoUploaded(false) }}
+      onVideoUploaded={() => setVideoUploaded(true)}
+    />
 
-      <MatchSetup profile={profile} clipId={clipId} setClipId={setClipId} />
+    <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
 
       <p>Selected Tool: {selectedTool}</p>
 
