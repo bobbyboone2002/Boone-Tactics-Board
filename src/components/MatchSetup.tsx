@@ -309,7 +309,7 @@ function MatchSetup({ profile, clipId, setClipId }: { profile: string; clipId: s
             type="text"
             value={clipId}
             onChange={(e) => setClipId(e.target.value)}
-            placeholder="FUL.CHE(1-0)20260824"
+            placeholder="FUL.CHE(0-1)20260824"
           />
         </label>
       </div>
