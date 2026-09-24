@@ -17,7 +17,6 @@ TARGET_FPS = 20
 BOX_SIZE = 30
 MAX_JUMP_PIXELS = 80
 
-
 def safe_name(name):
     return re.sub(r"[^a-zA-Z0-9_-]", "_", name)
 
