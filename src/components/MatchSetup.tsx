@@ -323,7 +323,7 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
             type="text"
             value={clipId}
             onChange={(e) => setClipId(e.target.value)}
-            placeholder="FUL.CHE(0-1)20260824"
+            placeholder="FUL.CHE(0-1)20260824.mp4"
           />
         </label>
       </div>
