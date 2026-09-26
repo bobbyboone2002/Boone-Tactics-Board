@@ -15,6 +15,7 @@ import KitSelector from "./components/KitSelector"
 import PlaysPanel from "./components/PlaysPanel"
 import FramesPanel from "./components/FramesPanel"
 import SwapTeamPanel from "./components/SwapTeamPanel"
+import ClipPlayer from "./components/ClipPlayer"
 import type { Team } from "./types"
 import MatchSetup from "./components/MatchSetup"
 import VideoTracker from "./components/VideoTracker"
@@ -587,6 +588,16 @@ function redo() {
   setSelectedArrow(null)
   setSelectedText(null)
   setSelectedRectangle(null)
+}
+
+function setPlayersFromClip(newPlayers: typeof players) {
+  skipHistory.current = true
+  setPlayers(newPlayers)
+}
+
+function setBallPositionFromClip(newBall: typeof ballPosition) {
+  skipHistory.current = true
+  setBallPosition(newBall)
 }
 
 function toggleMultiSelect(type: "player" | "ball" | "arrow" | "rectangle" | "text", id: number) {
@@ -1498,6 +1509,11 @@ const currentText = texts.find(
 const homeCurrentTeam = teams.find((team) => team.id === homeTeamId) ?? null
 const awayCurrentTeam = teams.find((team) => team.id === awayTeamId) ?? null
 
+const homeKitColor = homeCurrentTeam ? getKitColor(homeCurrentTeam, kitOverrides) : "gray"
+const homeKitNumberColor = homeCurrentTeam ? getKitNumberColor(homeCurrentTeam, kitOverrides) : "white"
+const awayKitColor = awayCurrentTeam ? getKitColor(awayCurrentTeam, kitOverrides) : "gray"
+const awayKitNumberColor = awayCurrentTeam ? getKitNumberColor(awayCurrentTeam, kitOverrides) : "white"
+
 const rosterOptions = [
   ...(homeCurrentTeam?.roster.map((p) => ({ label: `home_${p.number}`, name: p.name })) ?? []),
   ...(awayCurrentTeam?.roster.map((p) => ({ label: `away_${p.number}`, name: p.name })) ?? []),
@@ -1644,6 +1660,19 @@ const benchPlayers = focusedTeam
     cancelCreate={() => setNewTextPosition(null)}
   />
 )}
+
+<ClipPlayer
+  profile={profile}
+  clipId={clipId}
+  homeTeam={homeCurrentTeam}
+  awayTeam={awayCurrentTeam}
+  homeColor={homeKitColor}
+  homeNumberColor={homeKitNumberColor}
+  awayColor={awayKitColor}
+  awayNumberColor={awayKitNumberColor}
+  setPlayers={setPlayersFromClip}
+  setBallPosition={setBallPositionFromClip}
+/>
 
 <div
   style={{
