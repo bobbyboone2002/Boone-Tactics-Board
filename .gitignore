@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+pipeline/venv/
+pipeline/clips/
+pipeline/checkpoints/
+pipeline/frames/
+__pycache__/
+*.pyc
