@@ -197,7 +197,6 @@ def mark_keyframe():
 
     return jsonify(keyframes)
 
-
 @app.route("/delete_keyframe", methods=["POST"])
 def delete_keyframe():
     profile, clip = get_params(request.args)
