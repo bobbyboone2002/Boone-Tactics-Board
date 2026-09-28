@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 
 const API_BASE = "http://localhost:5001"
 
-type Mark = { timestamp: number; meterX: number; meterY: number }
+type Mark = { timestamp: number; meterX: number; meterY: number; pixelX: number; pixelY: number }
 type Keyframes = Record<string, Mark[]>
 
 type RosterOption = { label: string; name: string }
@@ -18,11 +18,11 @@ type KeyframeMarkerProps = {
 
 function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: KeyframeMarkerProps) {
   const [fps, setFps] = useState(20)
-  const [frameCount, setFrameCount] = useState(0)
   const [calibrationTimes, setCalibrationTimes] = useState<number[]>([])
-  const [currentTime, setCurrentTime] = useState(0)
+  const [calibrationIndex, setCalibrationIndex] = useState(0)
   const [pendingLabel, setPendingLabel] = useState(rosterOptions[0]?.label ?? "")
   const [keyframes, setKeyframes] = useState<Keyframes>({})
+  const [imgDisplaySize, setImgDisplaySize] = useState({ width: 600, height: 338 })
 
   const frameImgRef = useRef<HTMLImageElement>(null)
 
@@ -33,14 +33,16 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
       .then((r) => r.json())
       .then((data) => {
         if (data.fps) setFps(data.fps)
-        if (data.frameCount) setFrameCount(data.frameCount)
       })
 
     fetch(`${API_BASE}/calibrations?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
       .then((r) => r.json())
       .then((data) => {
-        const times = (data.calibrations ?? []).map((c: Calibration) => c.startTime)
+        const times = (data.calibrations ?? [])
+          .map((c: Calibration) => c.startTime)
+          .sort((a: number, b: number) => a - b)
         setCalibrationTimes(times)
+        setCalibrationIndex(0)
       })
 
     fetch(`${API_BASE}/keyframes?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
@@ -48,13 +50,13 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
       .then(setKeyframes)
   }, [profile, clipId, videoReady])
 
-  const currentFrameIndex = Math.min(Math.round(currentTime * fps), Math.max(frameCount - 1, 0))
+  const currentTime = calibrationTimes[calibrationIndex] ?? 0
+  const currentFrameIndex = Math.round(currentTime * fps)
   const frameUrl = `${API_BASE}/frame/${encodeURIComponent(profile)}/${encodeURIComponent(clipId)}/${currentFrameIndex}`
-  const duration = frameCount > 0 ? (frameCount - 1) / fps : 0
 
   async function handleFrameClick(event: React.MouseEvent<HTMLImageElement>) {
     const img = frameImgRef.current
-    if (!img || !pendingLabel) return
+    if (!img || !pendingLabel || calibrationTimes.length === 0) return
 
     const rect = img.getBoundingClientRect()
     const scaleX = img.naturalWidth / rect.width
@@ -72,7 +74,7 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
     )
 
     if (!res.ok) {
-      alert(`Could not mark keyframe (status ${res.status}). Is there a saved calibration covering this timestamp?`)
+      alert(`Could not mark keyframe (status ${res.status}).`)
       return
     }
 
@@ -97,7 +99,16 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
     return null
   }
 
-  const marksForPendingLabel = keyframes[pendingLabel] ?? []
+  if (calibrationTimes.length === 0) {
+    return <p>No saved calibrations for this clip yet — calibrate at least one frame first.</p>
+  }
+
+  const marksAtThisKeyframe = Object.entries(keyframes)
+    .map(([label, marks]) => {
+      const mark = marks.find((m) => Math.abs(m.timestamp - currentTime) < 0.001)
+      return mark ? { label, mark } : null
+    })
+    .filter((entry): entry is { label: string; mark: Mark } => entry !== null)
 
   return (
     <div>
@@ -113,49 +124,66 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
       </label>
 
       <div style={{ marginTop: "10px" }}>
-        <input
-          type="range"
-          min={0}
-          max={duration}
-          step={1 / fps}
-          value={currentTime}
-          onChange={(e) => setCurrentTime(parseFloat(e.target.value))}
-          style={{ width: "400px" }}
-        />
-        <span style={{ marginLeft: "10px" }}>{currentTime.toFixed(2)}s / {duration.toFixed(2)}s</span>
+        <button onClick={() => setCalibrationIndex((i) => Math.max(0, i - 1))} disabled={calibrationIndex === 0}>
+          Previous Keyframe
+        </button>
+        <span style={{ margin: "0 10px" }}>
+          Keyframe {calibrationIndex + 1} of {calibrationTimes.length} — {currentTime.toFixed(2)}s
+        </span>
+        <button
+          onClick={() => setCalibrationIndex((i) => Math.min(calibrationTimes.length - 1, i + 1))}
+          disabled={calibrationIndex === calibrationTimes.length - 1}
+        >
+          Next Keyframe
+        </button>
       </div>
 
-      {calibrationTimes.length > 0 && (
-        <div style={{ marginTop: "6px" }}>
-          Jump to calibration:{" "}
-          {calibrationTimes.map((t) => (
-            <button key={t} onClick={() => setCurrentTime(t)} style={{ marginRight: "4px" }}>
-              {t.toFixed(1)}s
-            </button>
-          ))}
-        </div>
-      )}
+      <div style={{ position: "relative", width: imgDisplaySize.width, marginTop: "10px" }}>
+        <img
+          ref={frameImgRef}
+          src={frameUrl}
+          onClick={handleFrameClick}
+          onLoad={(e) => {
+            const img = e.currentTarget
+            const width = Math.min(600, img.naturalWidth)
+            const height = (img.naturalHeight / img.naturalWidth) * width
+            setImgDisplaySize({ width, height })
+          }}
+          style={{ width: imgDisplaySize.width, display: "block", cursor: "crosshair" }}
+        />
+        {marksAtThisKeyframe.map(({ label, mark }) => {
+          const naturalWidth = frameImgRef.current?.naturalWidth || 1
+          const naturalHeight = frameImgRef.current?.naturalHeight || 1
+          const displayX = (mark.pixelX / naturalWidth) * imgDisplaySize.width
+          const displayY = (mark.pixelY / naturalHeight) * imgDisplaySize.height
+          const name = rosterOptions.find((r) => r.label === label)?.name ?? label
+          return (
+            <div
+              key={label}
+              style={{ position: "absolute", left: displayX - 6, top: displayY - 6, pointerEvents: "none" }}
+            >
+              <div style={{ width: 12, height: 12, borderRadius: "50%", background: "red", border: "2px solid white" }} />
+              <div style={{ color: "white", background: "black", fontSize: "11px", padding: "1px 4px", whiteSpace: "nowrap" }}>
+                {name}
+              </div>
+            </div>
+          )
+        })}
+      </div>
 
-      <img
-        ref={frameImgRef}
-        src={frameUrl}
-        onClick={handleFrameClick}
-        style={{ maxWidth: "600px", display: "block", marginTop: "10px", cursor: "crosshair" }}
-      />
-
-      <h3>Marks for {rosterOptions.find((r) => r.label === pendingLabel)?.name ?? pendingLabel}</h3>
+      <h3>Marked at this keyframe</h3>
       <ul>
-        {marksForPendingLabel.map((m) => (
-          <li key={m.timestamp}>
-            {m.timestamp.toFixed(2)}s
-            <button onClick={() => handleDeleteMark(pendingLabel, m.timestamp)} style={{ marginLeft: "8px" }}>
-              Delete
-            </button>
-            <button onClick={() => setCurrentTime(m.timestamp)} style={{ marginLeft: "8px" }}>
-              Jump here
-            </button>
-          </li>
-        ))}
+        {marksAtThisKeyframe.map(({ label, mark }) => {
+          const name = rosterOptions.find((r) => r.label === label)?.name ?? label
+          return (
+            <li key={label}>
+              {name}
+              <button onClick={() => handleDeleteMark(label, mark.timestamp)} style={{ marginLeft: "8px" }}>
+                Delete
+              </button>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

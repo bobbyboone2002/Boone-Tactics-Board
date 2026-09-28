@@ -189,7 +189,7 @@ def mark_keyframe():
     label_marks = keyframes.get(label, [])
 
     label_marks = [m for m in label_marks if abs(m["timestamp"] - timestamp) > 0.001]
-    label_marks.append({"timestamp": timestamp, "meterX": meter_x, "meterY": meter_y})
+    label_marks.append({"timestamp": timestamp, "meterX": meter_x, "meterY": meter_y, "pixelX": px, "pixelY": py})
     label_marks.sort(key=lambda m: m["timestamp"])
 
     keyframes[label] = label_marks
@@ -217,4 +217,3 @@ def delete_keyframe():
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
-    
