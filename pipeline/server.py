@@ -14,8 +14,6 @@ CLIPS_DIR = os.path.join(BASE_DIR, "clips")
 os.makedirs(CLIPS_DIR, exist_ok=True)
 
 TARGET_FPS = 20
-BOX_SIZE = 30
-MAX_JUMP_PIXELS = 80
 
 def safe_name(name):
     return re.sub(r"[^a-zA-Z0-9_-]", "_", name)
@@ -65,7 +63,22 @@ def upload_video():
         frame_index += 1
     cap.release()
 
-    return jsonify({"fps": TARGET_FPS, "frameCount": saved_index})
+    video_info = {"fps": TARGET_FPS, "frameCount": saved_index}
+    with open(os.path.join(directory, "video_info.json"), "w") as f:
+        json.dump(video_info, f)
+
+    return jsonify(video_info)
+
+
+@app.route("/video_info")
+def get_video_info():
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+    path = os.path.join(directory, "video_info.json")
+    if not os.path.exists(path):
+        return jsonify({"error": "No video uploaded for this clip yet"}), 404
+    with open(path) as f:
+        return jsonify(json.load(f))
 
 
 @app.route("/upload_calibration", methods=["POST"])
@@ -78,6 +91,17 @@ def upload_calibration():
         json.dump(calibration_data, f)
 
     return jsonify({"status": "ok"})
+
+
+@app.route("/calibrations")
+def get_calibrations():
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+    path = os.path.join(directory, "calibration.json")
+    if not os.path.exists(path):
+        return jsonify({"calibrations": []})
+    with open(path) as f:
+        return jsonify(json.load(f))
 
 
 @app.route("/video/<profile>/<clip>")
@@ -123,159 +147,74 @@ def pixel_to_meters(inv_matrix, px, py):
     return float(result[0]), float(result[1])
 
 
-def tracking_path(directory):
-    return os.path.join(directory, "tracking.json")
+def keyframes_path(directory):
+    return os.path.join(directory, "keyframes.json")
 
 
-def load_tracking(directory):
-    path = tracking_path(directory)
+def load_keyframes(directory):
+    path = keyframes_path(directory)
     if os.path.exists(path):
         with open(path) as f:
             return json.load(f)
-    return {"frames": []}
+    return {}
 
 
-def save_tracking(directory, data):
-    with open(tracking_path(directory), "w") as f:
+def save_keyframes(directory, data):
+    with open(keyframes_path(directory), "w") as f:
         json.dump(data, f)
 
 
-@app.route("/tracking", methods=["GET"])
-def get_tracking():
+@app.route("/keyframes", methods=["GET"])
+def get_keyframes():
     profile, clip = get_params(request.args)
     directory = clip_dir(profile, clip)
-    return jsonify(load_tracking(directory))
+    return jsonify(load_keyframes(directory))
 
 
-@app.route("/initial_track", methods=["POST"])
-def initial_track():
+@app.route("/mark_keyframe", methods=["POST"])
+def mark_keyframe():
     profile, clip = get_params(request.args)
     directory = clip_dir(profile, clip)
-    frames_dir = os.path.join(directory, "frames")
-
-    selections = request.json["selections"]
-
-    frame_files = sorted(os.listdir(frames_dir))
-    first_frame = cv2.imread(os.path.join(frames_dir, frame_files[0]))
-
-    trackers, labels, active = [], [], []
-    for sel in selections:
-        x, y = sel["x"], sel["y"]
-        bbox = (x - BOX_SIZE, y - BOX_SIZE, BOX_SIZE * 2, BOX_SIZE * 2)
-        tracker = cv2.legacy.TrackerCSRT_create()
-        tracker.init(first_frame, bbox)
-        trackers.append(tracker)
-        labels.append(sel["label"])
-        active.append(True)
-
-    tracking_data = {"frames": []}
-    last_position = {}
-
-    def record(frame_idx, boxes):
-        detections = []
-        for i, label in enumerate(labels):
-            if not active[i]:
-                continue
-            x, y, w, h = boxes[i]
-            cx, cy = x + w / 2, y + h
-
-            if label in last_position:
-                jump = np.hypot(cx - last_position[label][0], cy - last_position[label][1])
-                if jump > MAX_JUMP_PIXELS:
-                    active[i] = False
-                    continue
-            last_position[label] = (cx, cy)
-
-            timestamp = frame_idx / TARGET_FPS
-            inv = np.linalg.inv(load_homography(directory, timestamp))
-            mx, my = pixel_to_meters(inv, cx, cy)
-
-            detections.append({"label": label, "pixelX": cx, "pixelY": cy, "meterX": mx, "meterY": my})
-        tracking_data["frames"].append({"frameIndex": frame_idx, "detections": detections})
-
-    initial_boxes = [(s["x"] - BOX_SIZE, s["y"] - BOX_SIZE, BOX_SIZE * 2, BOX_SIZE * 2) for s in selections]
-    record(0, initial_boxes)
-
-    for frame_idx in range(1, len(frame_files)):
-        frame = cv2.imread(os.path.join(frames_dir, frame_files[frame_idx]))
-        boxes = []
-        for i, tracker in enumerate(trackers):
-            if not active[i]:
-                boxes.append((0, 0, 0, 0))
-                continue
-            success, bbox = tracker.update(frame)
-            if not success:
-                active[i] = False
-            boxes.append(bbox if success else (0, 0, 0, 0))
-        record(frame_idx, boxes)
-
-    save_tracking(directory, tracking_data)
-    return jsonify(tracking_data)
-
-
-@app.route("/correct_track", methods=["POST"])
-def correct_track_endpoint():
-    profile, clip = get_params(request.args)
-    directory = clip_dir(profile, clip)
-    frames_dir = os.path.join(directory, "frames")
 
     body = request.json
     label = body["label"]
-    start_frame_idx = body["frameIndex"]
-    click_x = body["x"]
-    click_y = body["y"]
+    timestamp = float(body["timestamp"])
+    px = float(body["x"])
+    py = float(body["y"])
 
-    frame_files = sorted(os.listdir(frames_dir))
-    frame = cv2.imread(os.path.join(frames_dir, frame_files[start_frame_idx]))
+    inv = np.linalg.inv(load_homography(directory, timestamp))
+    meter_x, meter_y = pixel_to_meters(inv, px, py)
 
-    bbox = (click_x - BOX_SIZE, click_y - BOX_SIZE, BOX_SIZE * 2, BOX_SIZE * 2)
-    tracker = cv2.legacy.TrackerCSRT_create()
-    tracker.init(frame, bbox)
+    keyframes = load_keyframes(directory)
+    label_marks = keyframes.get(label, [])
 
-    tracking_data = load_tracking(directory)
-    frames_by_index = {fe["frameIndex"]: fe for fe in tracking_data["frames"]}
+    label_marks = [m for m in label_marks if abs(m["timestamp"] - timestamp) > 0.001]
+    label_marks.append({"timestamp": timestamp, "meterX": meter_x, "meterY": meter_y})
+    label_marks.sort(key=lambda m: m["timestamp"])
 
-    last_position = None
+    keyframes[label] = label_marks
+    save_keyframes(directory, keyframes)
 
-    for frame_idx in range(start_frame_idx, len(frame_files)):
-        current_frame = cv2.imread(os.path.join(frames_dir, frame_files[frame_idx]))
+    return jsonify(keyframes)
 
-        if frame_idx == start_frame_idx:
-            box = bbox
-        else:
-            success, box = tracker.update(current_frame)
-            if not success:
-                break
 
-        x, y, w, h = box
-        cx, cy = x + w / 2, y + h
+@app.route("/delete_keyframe", methods=["POST"])
+def delete_keyframe():
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
 
-        if last_position:
-            jump = np.hypot(cx - last_position[0], cy - last_position[1])
-            if jump > MAX_JUMP_PIXELS:
-                break
-        last_position = (cx, cy)
+    body = request.json
+    label = body["label"]
+    timestamp = float(body["timestamp"])
 
-        timestamp = frame_idx / TARGET_FPS
-        inv = np.linalg.inv(load_homography(directory, timestamp))
-        mx, my = pixel_to_meters(inv, cx, cy)
+    keyframes = load_keyframes(directory)
+    label_marks = keyframes.get(label, [])
+    keyframes[label] = [m for m in label_marks if abs(m["timestamp"] - timestamp) > 0.001]
+    save_keyframes(directory, keyframes)
 
-        if frame_idx not in frames_by_index:
-            frames_by_index[frame_idx] = {"frameIndex": frame_idx, "detections": []}
-            tracking_data["frames"].append(frames_by_index[frame_idx])
-
-        frames_by_index[frame_idx]["detections"] = [
-            d for d in frames_by_index[frame_idx]["detections"] if d["label"] != label
-        ]
-        frames_by_index[frame_idx]["detections"].append({
-            "label": label, "pixelX": float(cx), "pixelY": float(cy), "meterX": mx, "meterY": my
-        })
-
-    tracking_data["frames"].sort(key=lambda fe: fe["frameIndex"])
-    save_tracking(directory, tracking_data)
-
-    return jsonify(tracking_data)
+    return jsonify(keyframes)
 
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
+    

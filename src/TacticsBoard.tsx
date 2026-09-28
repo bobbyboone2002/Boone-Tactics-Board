@@ -18,7 +18,7 @@ import SwapTeamPanel from "./components/SwapTeamPanel"
 import ClipPlayer from "./components/ClipPlayer"
 import type { Team } from "./types"
 import MatchSetup from "./components/MatchSetup"
-import VideoTracker from "./components/VideoTracker"
+import KeyframeMarker from "./components/KeyframeMarker"
 
 type Snapshot = {
   players: {
@@ -1570,8 +1570,7 @@ const benchPlayers = focusedTeam
       onVideoUploaded={() => setVideoUploaded(true)}
     />
 
-    <VideoTracker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
-
+    <KeyframeMarker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
       <p>Selected Tool: {selectedTool}</p>
 
       <button

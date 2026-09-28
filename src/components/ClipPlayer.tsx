@@ -3,22 +3,8 @@ import type { Team } from "../types"
 
 const API_BASE = "http://localhost:5001"
 
-type Detection = {
-  label: string
-  pixelX: number
-  pixelY: number
-  meterX: number
-  meterY: number
-}
-
-type TrackingFrame = {
-  frameIndex: number
-  detections: Detection[]
-}
-
-type TrackingData = {
-  frames: TrackingFrame[]
-}
+type Mark = { timestamp: number; meterX: number; meterY: number }
+type Keyframes = Record<string, Mark[]>
 
 type PlayerOut = {
   id: number
@@ -46,21 +32,39 @@ type ClipPlayerProps = {
   setBallPosition: (pos: { x: number; y: number } | null) => void
 }
 
-// Matches the fixed constants in SoccerPitch.tsx exactly — this is what makes
-// tracked positions line up correctly on the real board.
 const PITCH_X = 25
 const PITCH_Y = 25
 const PITCH_WIDTH = 910
 const PITCH_HEIGHT = 550
 const SCALE_X = PITCH_WIDTH / 103
 const SCALE_Y = PITCH_HEIGHT / 67
-const FPS = 20
 
 function meterToPixel(meterX: number, meterY: number) {
   return {
     x: PITCH_X + meterX * SCALE_X,
     y: PITCH_Y + meterY * SCALE_Y
   }
+}
+
+// Position of a label at time t, interpolated between its own bracketing marks.
+// Returns null if t is before the label's first mark or after its last one.
+function interpolate(marks: Mark[], t: number): { meterX: number; meterY: number } | null {
+  if (marks.length === 0) return null
+  if (t < marks[0].timestamp || t > marks[marks.length - 1].timestamp) return null
+
+  for (let i = 0; i < marks.length - 1; i++) {
+    const a = marks[i]
+    const b = marks[i + 1]
+    if (t >= a.timestamp && t <= b.timestamp) {
+      const span = b.timestamp - a.timestamp
+      const frac = span === 0 ? 0 : (t - a.timestamp) / span
+      return {
+        meterX: a.meterX + (b.meterX - a.meterX) * frac,
+        meterY: a.meterY + (b.meterY - a.meterY) * frac
+      }
+    }
+  }
+  return { meterX: marks[marks.length - 1].meterX, meterY: marks[marks.length - 1].meterY }
 }
 
 function ClipPlayer({
@@ -76,25 +80,28 @@ function ClipPlayer({
   setBallPosition
 }: ClipPlayerProps) {
 
-  const [trackingData, setTrackingData] = useState<TrackingData | null>(null)
+  const [keyframes, setKeyframes] = useState<Keyframes | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [frameIndex, setFrameIndex] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
 
-  const intervalRef = useRef<number | null>(null)
+  const animationRef = useRef<number | null>(null)
+  const lastTickRef = useRef<number>(0)
 
-  function applyFrame(data: TrackingData, index: number) {
-    const frame = data.frames.find((f) => f.frameIndex === index) ?? data.frames[data.frames.length - 1]
-
+  function applyTime(data: Keyframes, t: number) {
     const newPlayers: PlayerOut[] = []
     let newBall: { x: number; y: number } | null = null
 
-    frame.detections.forEach((d) => {
-      if (d.label === "ball") {
-        newBall = meterToPixel(d.meterX, d.meterY)
+    Object.entries(data).forEach(([label, marks]) => {
+      const result = interpolate(marks, t)
+      if (!result) return
+
+      if (label === "ball") {
+        newBall = meterToPixel(result.meterX, result.meterY)
         return
       }
 
-      const match = d.label.match(/^(home|away)_(\d+)$/)
+      const match = label.match(/^(home|away)_(\d+)$/)
       if (!match) return
 
       const side = match[1] as "home" | "away"
@@ -104,7 +111,7 @@ function ClipPlayer({
       if (!team || !rosterPlayer) return
 
       const idOffset = side === "home" ? 0 : 900000
-      const { x, y } = meterToPixel(d.meterX, d.meterY)
+      const { x, y } = meterToPixel(result.meterX, result.meterY)
 
       newPlayers.push({
         id: rosterPlayer.id + idOffset,
@@ -125,63 +132,70 @@ function ClipPlayer({
   }
 
   async function loadClip() {
-    const res = await fetch(`${API_BASE}/tracking?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
+    const res = await fetch(`${API_BASE}/keyframes?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
     if (!res.ok) {
-      alert(`Could not load tracking data (status ${res.status}).`)
+      alert(`Could not load keyframes (status ${res.status}).`)
       return
     }
-    const data = await res.json()
-    if (!data.frames || data.frames.length === 0) {
-      alert("No tracking data found for this clip yet — run tracking first.")
+    const data: Keyframes = await res.json()
+
+    const allTimestamps = Object.values(data).flat().map((m) => m.timestamp)
+    if (allTimestamps.length === 0) {
+      alert("No keyframes marked for this clip yet.")
       return
     }
-    setTrackingData(data)
-    setFrameIndex(0)
-    applyFrame(data, 0)
+
+    setKeyframes(data)
+    setDuration(Math.max(...allTimestamps))
+    setCurrentTime(0)
+    applyTime(data, 0)
   }
 
   function pause() {
     setIsPlaying(false)
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = null
     }
+  }
+
+  function tick(now: number) {
+    const deltaSeconds = (now - lastTickRef.current) / 1000
+    lastTickRef.current = now
+
+    setCurrentTime((current) => {
+      const next = current + deltaSeconds
+      if (next >= duration) {
+        pause()
+        if (keyframes) applyTime(keyframes, duration)
+        return duration
+      }
+      if (keyframes) applyTime(keyframes, next)
+      return next
+    })
+
+    animationRef.current = requestAnimationFrame(tick)
   }
 
   function play() {
-    if (!trackingData) return
+    if (!keyframes) return
     setIsPlaying(true)
-
-    intervalRef.current = window.setInterval(() => {
-      setFrameIndex((current) => {
-        const next = current + 1
-        const maxFrame = trackingData.frames[trackingData.frames.length - 1].frameIndex
-        if (next > maxFrame) {
-          pause()
-          return current
-        }
-        applyFrame(trackingData, next)
-        return next
-      })
-    }, 1000 / FPS)
+    lastTickRef.current = performance.now()
+    animationRef.current = requestAnimationFrame(tick)
   }
 
-  function scrub(index: number) {
+  function scrub(t: number) {
     pause()
-    setFrameIndex(index)
-    if (trackingData) {
-      applyFrame(trackingData, index)
-    }
+    setCurrentTime(t)
+    if (keyframes) applyTime(keyframes, t)
   }
-
-  const maxFrame = trackingData ? trackingData.frames[trackingData.frames.length - 1].frameIndex : 0
 
   return (
     <div>
       <h2>Play Clip</h2>
       <button onClick={loadClip}>Load Clip: {clipId || "(no clip name set)"}</button>
 
-      {trackingData && (
+      {keyframes && (
         <div>
           <button onClick={isPlaying ? pause : play}>
             {isPlaying ? "Pause" : "Play"}
@@ -189,13 +203,14 @@ function ClipPlayer({
           <input
             type="range"
             min={0}
-            max={maxFrame}
-            value={frameIndex}
-            onChange={(e) => scrub(parseInt(e.target.value, 10))}
+            max={duration}
+            step={0.01}
+            value={currentTime}
+            onChange={(e) => scrub(parseFloat(e.target.value))}
             style={{ width: "400px", marginLeft: "10px" }}
           />
           <span style={{ marginLeft: "10px" }}>
-            {(frameIndex / FPS).toFixed(1)}s / {(maxFrame / FPS).toFixed(1)}s
+            {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
           </span>
         </div>
       )}
