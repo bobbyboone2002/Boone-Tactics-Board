@@ -19,6 +19,10 @@ def safe_name(name):
     return re.sub(r"[^a-zA-Z0-9_-]", "_", name)
 
 
+def existing_clip_dir(profile, clip):
+    return os.path.join(CLIPS_DIR, safe_name(profile), safe_name(clip))
+
+
 def clip_dir(profile, clip):
     path = os.path.join(CLIPS_DIR, safe_name(profile), safe_name(clip))
     os.makedirs(path, exist_ok=True)
@@ -73,7 +77,7 @@ def upload_video():
 @app.route("/video_info")
 def get_video_info():
     profile, clip = get_params(request.args)
-    directory = clip_dir(profile, clip)
+    directory = existing_clip_dir(profile, clip)
     path = os.path.join(directory, "video_info.json")
     if not os.path.exists(path):
         return jsonify({"error": "No video uploaded for this clip yet"}), 404
@@ -96,7 +100,7 @@ def upload_calibration():
 @app.route("/calibrations")
 def get_calibrations():
     profile, clip = get_params(request.args)
-    directory = clip_dir(profile, clip)
+    directory = existing_clip_dir(profile, clip)
     path = os.path.join(directory, "calibration.json")
     if not os.path.exists(path):
         return jsonify({"calibrations": []})
@@ -106,13 +110,13 @@ def get_calibrations():
 
 @app.route("/video/<profile>/<clip>")
 def get_video(profile, clip):
-    directory = clip_dir(profile, clip)
+    directory = existing_clip_dir(profile, clip)
     return send_from_directory(directory, "clip.mp4")
 
 
 @app.route("/frame/<profile>/<clip>/<int:frame_index>")
 def get_frame(profile, clip, frame_index):
-    directory = clip_dir(profile, clip)
+    directory = existing_clip_dir(profile, clip)
     return send_from_directory(os.path.join(directory, "frames"), f"{frame_index:05d}.jpg")
 
 
@@ -167,7 +171,7 @@ def save_keyframes(directory, data):
 @app.route("/keyframes", methods=["GET"])
 def get_keyframes():
     profile, clip = get_params(request.args)
-    directory = clip_dir(profile, clip)
+    directory = existing_clip_dir(profile, clip)
     return jsonify(load_keyframes(directory))
 
 
@@ -196,6 +200,7 @@ def mark_keyframe():
     save_keyframes(directory, keyframes)
 
     return jsonify(keyframes)
+
 
 @app.route("/delete_keyframe", methods=["POST"])
 def delete_keyframe():

@@ -48,14 +48,27 @@ function meterToPixel(meterX: number, meterY: number) {
 
 // Position of a label at time t, interpolated between its own bracketing marks.
 // Returns null if t is before the label's first mark or after its last one.
-function interpolate(marks: Mark[], t: number): { meterX: number; meterY: number } | null {
+function interpolate(marks: Mark[], t: number, calibrationTimes: number[]): { meterX: number; meterY: number } | null {
   if (marks.length === 0) return null
   if (t < marks[0].timestamp || t > marks[marks.length - 1].timestamp) return null
+
+  const indexOfTime = (time: number) =>
+    calibrationTimes.findIndex((ct) => Math.abs(ct - time) < 0.05)
 
   for (let i = 0; i < marks.length - 1; i++) {
     const a = marks[i]
     const b = marks[i + 1]
     if (t >= a.timestamp && t <= b.timestamp) {
+
+      const adjacent = indexOfTime(b.timestamp) - indexOfTime(a.timestamp) === 1
+
+      if (!adjacent) {
+        // A keyframe was skipped between these two marks — don't draw through the gap.
+        if (Math.abs(t - a.timestamp) < 0.01) return { meterX: a.meterX, meterY: a.meterY }
+        if (Math.abs(t - b.timestamp) < 0.01) return { meterX: b.meterX, meterY: b.meterY }
+        return null
+      }
+
       const span = b.timestamp - a.timestamp
       const frac = span === 0 ? 0 : (t - a.timestamp) / span
       return {
@@ -85,6 +98,8 @@ function ClipPlayer({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
+  const [calibrationTimes, setCalibrationTimes] = useState<number[]>([])
+
   const [isRecording, setIsRecording] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -92,12 +107,12 @@ function ClipPlayer({
   const animationRef = useRef<number | null>(null)
   const lastTickRef = useRef<number>(0)
 
-  function applyTime(data: Keyframes, t: number) {
+  function applyTime(data: Keyframes, t: number, calTimes: number[] = calibrationTimes) {
     const newPlayers: PlayerOut[] = []
     let newBall: { x: number; y: number } | null = null
 
     Object.entries(data).forEach(([label, marks]) => {
-      const result = interpolate(marks, t)
+      const result = interpolate(marks, t, calTimes)
       if (!result) return
 
       if (label === "ball") {
@@ -136,12 +151,22 @@ function ClipPlayer({
   }
 
   async function loadClip() {
-    const res = await fetch(`${API_BASE}/keyframes?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
-    if (!res.ok) {
-      alert(`Could not load keyframes (status ${res.status}).`)
+    const [keyframesRes, calibrationsRes] = await Promise.all([
+      fetch(`${API_BASE}/keyframes?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`),
+      fetch(`${API_BASE}/calibrations?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
+    ])
+
+    if (!keyframesRes.ok) {
+      alert(`Could not load keyframes (status ${keyframesRes.status}).`)
       return
     }
-    const data: Keyframes = await res.json()
+
+    const data: Keyframes = await keyframesRes.json()
+    const calibrationData = await calibrationsRes.json()
+    const times = (calibrationData.calibrations ?? [])
+      .map((c: { startTime: number }) => c.startTime)
+      .sort((a: number, b: number) => a - b)
+    setCalibrationTimes(times)
 
     const allTimestamps = Object.values(data).flat().map((m) => m.timestamp)
     if (allTimestamps.length === 0) {
@@ -152,8 +177,8 @@ function ClipPlayer({
     setKeyframes(data)
     setDuration(Math.max(...allTimestamps))
     setCurrentTime(0)
-    applyTime(data, 0)
-  }
+    applyTime(data, 0, times)
+}
 
   function pause() {
     setIsPlaying(false)
