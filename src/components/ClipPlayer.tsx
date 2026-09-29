@@ -85,6 +85,10 @@ function ClipPlayer({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recordedChunksRef = useRef<Blob[]>([])
+
   const animationRef = useRef<number | null>(null)
   const lastTickRef = useRef<number>(0)
 
@@ -159,6 +163,46 @@ function ClipPlayer({
     }
   }
 
+  function startRecording() {
+  const canvas = document.querySelector(".konvajs-content canvas") as HTMLCanvasElement | null
+  if (!canvas) {
+    alert("Could not find the pitch canvas to record.")
+    return
+  }
+
+  const stream = canvas.captureStream(30)
+  const recorder = new MediaRecorder(stream, { mimeType: "video/webm" })
+  recordedChunksRef.current = []
+
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunksRef.current.push(e.data)
+  }
+
+  recorder.onstop = () => {
+    const blob = new Blob(recordedChunksRef.current, { type: "video/webm" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${clipId}_replay.webm`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  recorder.start()
+  mediaRecorderRef.current = recorder
+  setIsRecording(true)
+}
+
+function stopRecording() {
+  mediaRecorderRef.current?.stop()
+  setIsRecording(false)
+}
+
+async function playAndRecord() {
+  startRecording()
+  play()
+}
+
   function tick(now: number) {
     const deltaSeconds = (now - lastTickRef.current) / 1000
     lastTickRef.current = now
@@ -199,6 +243,9 @@ function ClipPlayer({
         <div>
           <button onClick={isPlaying ? pause : play}>
             {isPlaying ? "Pause" : "Play"}
+          </button>
+          <button onClick={isRecording ? stopRecording : playAndRecord} style={{ marginLeft: "10px" }}>
+          {isRecording ? "Stop & Download" : "Record & Download"}
           </button>
           <input
             type="range"

@@ -1349,11 +1349,24 @@ useEffect(() => {
 
 }, [homeTeamId, awayTeamId, homeFormation, awayFormation, kitOverrides, focusedSide])
 
+const persistTimeoutRef = useRef<number | null>(null)
+
 useEffect(() => {
 
-  const boardState: Snapshot = { players, ballPosition, arrows, texts, rectangles }
+  if (persistTimeoutRef.current !== null) {
+    clearTimeout(persistTimeoutRef.current)
+  }
 
-  localStorage.setItem(storageKey("boardState"), JSON.stringify(boardState))
+  persistTimeoutRef.current = window.setTimeout(() => {
+    const boardState: Snapshot = { players, ballPosition, arrows, texts, rectangles }
+    localStorage.setItem(storageKey("boardState"), JSON.stringify(boardState))
+  }, 300)
+
+  return () => {
+    if (persistTimeoutRef.current !== null) {
+      clearTimeout(persistTimeoutRef.current)
+    }
+  }
 
 }, [players, ballPosition, arrows, texts, rectangles])
 

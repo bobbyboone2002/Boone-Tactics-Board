@@ -25,6 +25,8 @@ const LANDMARKS: Landmark[] = [
   { label: "Center spot", meterX: 51.5, meterY: 33.5 },
   { label: "Center circle, top intersection with halfway line", meterX: 51.5, meterY: 24.35 },
   { label: "Center circle, bottom intersection with halfway line", meterX: 51.5, meterY: 42.65 },
+  { label: "Center circle, leftmost point", meterX: 42.35, meterY: 33.5 },
+  { label: "Center circle, rightmost point", meterX: 60.65, meterY: 33.5 },
   { label: "Top-left corner flag", meterX: 0, meterY: 0 },
   { label: "Top-right corner flag", meterX: 103, meterY: 0 },
   { label: "Bottom-left corner flag", meterX: 0, meterY: 67 },
