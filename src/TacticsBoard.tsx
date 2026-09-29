@@ -1436,6 +1436,17 @@ useEffect(() => {
 }, [players, ballPosition, arrows, texts, rectangles])
 
 useEffect(() => {
+  if (!clipId) return
+  fetch(`http://localhost:5001/video_info?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`)
+    .then((res) => {
+      if (res.ok) {
+        setVideoUploaded(true)
+      }
+    })
+    .catch(() => {})
+}, [clipId, profile])
+
+useEffect(() => {
   function handleKeyDown(event: KeyboardEvent) {
 
     if (
@@ -1569,6 +1580,8 @@ const benchPlayers = focusedTeam
       setClipId={(id) => { setClipId(id); setVideoUploaded(false) }}
       onVideoUploaded={() => setVideoUploaded(true)}
     />
+
+    <p>Video ready for tracking: {videoUploaded ? "Yes" : "No"}</p>
 
     <KeyframeMarker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
       <p>Selected Tool: {selectedTool}</p>

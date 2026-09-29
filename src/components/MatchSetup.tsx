@@ -156,12 +156,15 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
     formData.append("profile", profile)
     formData.append("clip", clipId)
 
-    const res = await fetch(`${API_BASE}/upload_video`, { method: "POST", body: formData })
-
-    if (res.ok) {
-      onVideoUploaded()
-    } else {
-      alert(`Upload failed (status ${res.status}). Check the server.py terminal for details.`)
+        try {
+      const res = await fetch(`${API_BASE}/upload_video`, { method: "POST", body: formData })
+      if (res.ok) {
+        onVideoUploaded()
+      } else {
+        alert(`Upload failed (status ${res.status}). Check the server.py terminal for details.`)
+      }
+    } catch (err) {
+      alert(`Could not reach the backend at all. Is server.py running? Error: ${err}`)
     }
   }
 
@@ -283,7 +286,8 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
   }
 
   async function saveCalibrationsToBackend() {
-    await fetch(`${API_BASE}/upload_calibration?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`, {
+  try {
+    const res = await fetch(`${API_BASE}/upload_calibration?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -294,7 +298,16 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
         }))
       })
     })
+
+    if (res.ok) {
+      alert("Calibration saved to backend successfully.")
+    } else {
+      alert(`Save failed (status ${res.status}).`)
+    }
+  } catch (err) {
+    alert(`Could not reach the backend. Error: ${err}`)
   }
+}
 
   const markedLabels = new Set(points.map((p) => p.label))
   const remainingLandmarks = LANDMARKS.filter((l) => !markedLabels.has(l.label))
