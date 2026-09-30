@@ -82,6 +82,16 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
     setKeyframes(data)
   }
 
+  async function recomputeAll() {
+  const res = await fetch(
+    `${API_BASE}/recompute_keyframes?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`,
+    { method: "POST" }
+  )
+  const data = await res.json()
+  setKeyframes(data)
+  alert("Recomputed all keyframe positions from current calibration data.")
+}
+
   async function handleDeleteMark(label: string, timestamp: number) {
     const res = await fetch(
       `${API_BASE}/delete_keyframe?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`,
@@ -135,6 +145,9 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
           disabled={calibrationIndex === calibrationTimes.length - 1}
         >
           Next Keyframe
+        </button>
+        <button onClick={recomputeAll} style={{ marginTop: "10px" }}>
+          Recompute All Positions From Current Calibrations
         </button>
       </div>
 

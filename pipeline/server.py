@@ -218,6 +218,22 @@ def delete_keyframe():
 
     return jsonify(keyframes)
 
+@app.route("/recompute_keyframes", methods=["POST"])
+def recompute_keyframes():
+    profile, clip = get_params(request.args)
+    directory = clip_dir(profile, clip)
+
+    keyframes = load_keyframes(directory)
+
+    for label, marks in keyframes.items():
+        for mark in marks:
+            inv = np.linalg.inv(load_homography(directory, mark["timestamp"]))
+            meter_x, meter_y = pixel_to_meters(inv, mark["pixelX"], mark["pixelY"])
+            mark["meterX"] = meter_x
+            mark["meterY"] = meter_y
+
+    save_keyframes(directory, keyframes)
+    return jsonify(keyframes)
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)
