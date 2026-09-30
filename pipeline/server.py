@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 import os
 import re
@@ -26,7 +26,6 @@ def existing_clip_dir(profile, clip):
 def clip_dir(profile, clip):
     path = os.path.join(CLIPS_DIR, safe_name(profile), safe_name(clip))
     os.makedirs(path, exist_ok=True)
-    os.makedirs(os.path.join(path, "frames"), exist_ok=True)
     return path
 
 
@@ -47,27 +46,20 @@ def upload_video():
     video_path = os.path.join(directory, "clip.mp4")
     file.save(video_path)
 
-    frames_dir = os.path.join(directory, "frames")
-    for f in os.listdir(frames_dir):
-        os.remove(os.path.join(frames_dir, f))
-
     cap = cv2.VideoCapture(video_path)
     source_fps = cap.get(cv2.CAP_PROP_FPS)
-    stride = max(1, round(source_fps / TARGET_FPS))
-
-    frame_index = 0
-    saved_index = 0
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
-        if frame_index % stride == 0:
-            cv2.imwrite(os.path.join(frames_dir, f"{saved_index:05d}.jpg"), frame)
-            saved_index += 1
-        frame_index += 1
+    total_source_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     cap.release()
 
-    video_info = {"fps": TARGET_FPS, "frameCount": saved_index}
+    duration_seconds = total_source_frames / source_fps if source_fps else 0
+    frame_count = int(duration_seconds * TARGET_FPS)
+
+    video_info = {
+        "fps": TARGET_FPS,
+        "sourceFps": source_fps,
+        "frameCount": frame_count,
+        "durationSeconds": duration_seconds
+    }
     with open(os.path.join(directory, "video_info.json"), "w") as f:
         json.dump(video_info, f)
 
@@ -89,11 +81,9 @@ def get_video_info():
 def upload_calibration():
     profile, clip = get_params(request.args)
     directory = clip_dir(profile, clip)
-
     calibration_data = request.json
     with open(os.path.join(directory, "calibration.json"), "w") as f:
         json.dump(calibration_data, f)
-
     return jsonify({"status": "ok"})
 
 
@@ -108,6 +98,17 @@ def get_calibrations():
         return jsonify(json.load(f))
 
 
+@app.route("/clear_clip_data", methods=["POST"])
+def clear_clip_data():
+    profile, clip = get_params(request.args)
+    directory = existing_clip_dir(profile, clip)
+    for filename in ["calibration.json", "keyframes.json"]:
+        path = os.path.join(directory, filename)
+        if os.path.exists(path):
+            os.remove(path)
+    return jsonify({"status": "cleared"})
+
+
 @app.route("/video/<profile>/<clip>")
 def get_video(profile, clip):
     directory = existing_clip_dir(profile, clip)
@@ -117,7 +118,25 @@ def get_video(profile, clip):
 @app.route("/frame/<profile>/<clip>/<int:frame_index>")
 def get_frame(profile, clip, frame_index):
     directory = existing_clip_dir(profile, clip)
-    return send_from_directory(os.path.join(directory, "frames"), f"{frame_index:05d}.jpg")
+    video_path = os.path.join(directory, "clip.mp4")
+    info_path = os.path.join(directory, "video_info.json")
+
+    with open(info_path) as f:
+        info = json.load(f)
+
+    timestamp = frame_index / info["fps"]
+    source_frame_index = round(timestamp * info["sourceFps"])
+
+    cap = cv2.VideoCapture(video_path)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, source_frame_index)
+    success, frame = cap.read()
+    cap.release()
+
+    if not success:
+        return jsonify({"error": "Could not read frame"}), 404
+
+    success, buffer = cv2.imencode(".jpg", frame)
+    return Response(buffer.tobytes(), mimetype="image/jpeg")
 
 
 @app.route("/clips")
@@ -191,11 +210,9 @@ def mark_keyframe():
 
     keyframes = load_keyframes(directory)
     label_marks = keyframes.get(label, [])
-
     label_marks = [m for m in label_marks if abs(m["timestamp"] - timestamp) > 0.001]
     label_marks.append({"timestamp": timestamp, "meterX": meter_x, "meterY": meter_y, "pixelX": px, "pixelY": py})
     label_marks.sort(key=lambda m: m["timestamp"])
-
     keyframes[label] = label_marks
     save_keyframes(directory, keyframes)
 
@@ -218,11 +235,11 @@ def delete_keyframe():
 
     return jsonify(keyframes)
 
+
 @app.route("/recompute_keyframes", methods=["POST"])
 def recompute_keyframes():
     profile, clip = get_params(request.args)
     directory = clip_dir(profile, clip)
-
     keyframes = load_keyframes(directory)
 
     for label, marks in keyframes.items():
@@ -234,6 +251,7 @@ def recompute_keyframes():
 
     save_keyframes(directory, keyframes)
     return jsonify(keyframes)
+
 
 if __name__ == "__main__":
     app.run(port=5001, debug=True)

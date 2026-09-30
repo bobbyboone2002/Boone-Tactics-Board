@@ -200,6 +200,18 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
     setHomographyMatrix(null)
   }
 
+  async function clearAllClipData() {
+  if (!window.confirm("This permanently deletes all calibrations and keyframe marks for this clip. Continue?")) {
+    return
+  }
+  await fetch(`${API_BASE}/clear_clip_data?profile=${encodeURIComponent(profile)}&clip=${encodeURIComponent(clipId)}`, {
+    method: "POST"
+  })
+  setCalibrations([])
+  localStorage.removeItem(`matchCalibrations_${clipId}`)
+  alert("Cleared. Recalibrate this clip from scratch whenever you're ready.")
+}
+
   function handleCanvasClick(event: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current
     if (!canvas || !capturedFrame) {
@@ -338,7 +350,7 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
             type="text"
             value={clipId}
             onChange={(e) => setClipId(e.target.value)}
-            placeholder="FUL.CHE(0-1)20260824.mp4"
+            placeholder="Name"
           />
         </label>
       </div>
@@ -346,6 +358,10 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
       <div style={{ marginTop: "10px" }}>
         <input type="file" accept="video/*" onChange={handleFileSelect} disabled={!clipId} />
       </div>
+
+      <button onClick={clearAllClipData} style={{ marginTop: "10px", color: "red" }}>
+        Clear All Calibrations & Keyframes for This Clip
+      </button>
 
       {videoSrc && (
         <div style={{ position: "relative" }}>

@@ -48,27 +48,14 @@ function meterToPixel(meterX: number, meterY: number) {
 
 // Position of a label at time t, interpolated between its own bracketing marks.
 // Returns null if t is before the label's first mark or after its last one.
-function interpolate(marks: Mark[], t: number, calibrationTimes: number[]): { meterX: number; meterY: number } | null {
+function interpolate(marks: Mark[], t: number): { meterX: number; meterY: number } | null {
   if (marks.length === 0) return null
   if (t < marks[0].timestamp || t > marks[marks.length - 1].timestamp) return null
-
-  const indexOfTime = (time: number) =>
-    calibrationTimes.findIndex((ct) => Math.abs(ct - time) < 0.05)
 
   for (let i = 0; i < marks.length - 1; i++) {
     const a = marks[i]
     const b = marks[i + 1]
     if (t >= a.timestamp && t <= b.timestamp) {
-
-      const adjacent = indexOfTime(b.timestamp) - indexOfTime(a.timestamp) === 1
-
-      if (!adjacent) {
-        // A keyframe was skipped between these two marks — don't draw through the gap.
-        if (Math.abs(t - a.timestamp) < 0.01) return { meterX: a.meterX, meterY: a.meterY }
-        if (Math.abs(t - b.timestamp) < 0.01) return { meterX: b.meterX, meterY: b.meterY }
-        return null
-      }
-
       const span = b.timestamp - a.timestamp
       const frac = span === 0 ? 0 : (t - a.timestamp) / span
       return {
@@ -107,12 +94,12 @@ function ClipPlayer({
   const animationRef = useRef<number | null>(null)
   const lastTickRef = useRef<number>(0)
 
-  function applyTime(data: Keyframes, t: number, calTimes: number[] = calibrationTimes) {
+  function applyTime(data: Keyframes, t: number = calibrationTimes[0]) {
     const newPlayers: PlayerOut[] = []
     let newBall: { x: number; y: number } | null = null
 
     Object.entries(data).forEach(([label, marks]) => {
-      const result = interpolate(marks, t, calTimes)
+      const result = interpolate(marks, t)
       if (!result) return
 
       if (label === "ball") {
@@ -177,7 +164,7 @@ function ClipPlayer({
     setKeyframes(data)
     setDuration(Math.max(...allTimestamps))
     setCurrentTime(0)
-    applyTime(data, 0, times)
+    applyTime(data, 0)
 }
 
   function pause() {
