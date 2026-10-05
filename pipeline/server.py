@@ -13,6 +13,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CLIPS_DIR = os.path.join(BASE_DIR, "clips")
 os.makedirs(CLIPS_DIR, exist_ok=True)
 
+PLAYER_FEET_OFFSET = 40  # pixels, downward — adjust based on how far off your clicks tend to be
+
 TARGET_FPS = 20
 
 def safe_name(name):
@@ -204,6 +206,9 @@ def mark_keyframe():
     timestamp = float(body["timestamp"])
     px = float(body["x"])
     py = float(body["y"])
+
+    if label != "ball":
+        py = py + PLAYER_FEET_OFFSET
 
     inv = np.linalg.inv(load_homography(directory, timestamp))
     meter_x, meter_y = pixel_to_meters(inv, px, py)

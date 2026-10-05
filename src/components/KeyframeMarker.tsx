@@ -170,18 +170,21 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
           const displayX = (mark.pixelX / naturalWidth) * imgDisplaySize.width
           const displayY = (mark.pixelY / naturalHeight) * imgDisplaySize.height
           const name = rosterOptions.find((r) => r.label === label)?.name ?? label
+          const isBall = label === "ball"
           return (
             <div
               key={label}
               style={{ position: "absolute", left: displayX - 6, top: displayY - 6, pointerEvents: "none" }}
             >
               <div style={{ width: 12, height: 12, borderRadius: "50%", background: "red", border: "2px solid white" }} />
-              <div style={{ color: "white", background: "black", fontSize: "11px", padding: "1px 4px", whiteSpace: "nowrap" }}>
-                {name}
-              </div>
+              {!isBall && (
+                <div style={{ color: "white", background: "black", fontSize: "11px", padding: "1px 4px", whiteSpace: "nowrap" }}>
+                  {name}
+                </div>
+              )}
             </div>
           )
-        })}
+      })}
       </div>
 
       <h3>Marked at this keyframe</h3>
