@@ -121,6 +121,8 @@ function ClipPlayer({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
+  const [showPanel, setShowPanel] = useState(false)
+
   const [calibrationTimes, setCalibrationTimes] = useState<number[]>([])
 
   const [isRecording, setIsRecording] = useState(false)
@@ -282,9 +284,17 @@ async function playAndRecord() {
     if (keyframes) applyTime(keyframes, t)
   }
 
+  if (!showPanel) {
   return (
+    <button onClick={() => setShowPanel(true)}>
+      Clip Playback
+    </button>
+  )
+}
+
+return (
     <div>
-      <h2>Play Clip</h2>
+      <button onClick={() => setShowPanel(false)}>Close</button>
       <button onClick={loadClip}>Load Clip: {clipId || "(no clip name set)"}</button>
 
       {keyframes && (

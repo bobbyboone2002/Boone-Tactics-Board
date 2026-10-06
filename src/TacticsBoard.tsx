@@ -19,6 +19,7 @@ import ClipPlayer from "./components/ClipPlayer"
 import type { Team } from "./types"
 import MatchSetup from "./components/MatchSetup"
 import KeyframeMarker from "./components/KeyframeMarker"
+import VideoToolsGate from "./components/VideoToolsGate"
 
 type Snapshot = {
   players: {
@@ -1563,7 +1564,7 @@ const benchPlayers = focusedTeam
 
   return (
     <div>
-      <h1>Soccer Tactics Board</h1>
+      <h1>Wilt Tactics Board</h1>
 
       <p>Profile: {profile}</p>
 
@@ -1587,123 +1588,68 @@ const benchPlayers = focusedTeam
         </span>
       )}
 
-    <MatchSetup
-      profile={profile}
-      clipId={clipId}
-      setClipId={(id) => { setClipId(id); setVideoUploaded(false) }}
-      onVideoUploaded={() => setVideoUploaded(true)}
-    />
+          <VideoToolsGate>
+        <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
+          <MatchSetup
+            profile={profile}
+            clipId={clipId}
+            setClipId={(id) => { setClipId(id); setVideoUploaded(false) }}
+            onVideoUploaded={() => setVideoUploaded(true)}
+          />
+          <KeyframeMarker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
+          <ClipPlayer
+            profile={profile}
+            clipId={clipId}
+            homeTeam={homeCurrentTeam}
+            awayTeam={awayCurrentTeam}
+            homeColor={homeKitColor}
+            homeNumberColor={homeKitNumberColor}
+            awayColor={awayKitColor}
+            awayNumberColor={awayKitNumberColor}
+            setPlayers={setPlayersFromClip}
+            setBallPosition={setBallPositionFromClip}
+          />
+        </div>
+      </VideoToolsGate>
 
-    <p>Video ready for tracking: {videoUploaded ? "Yes" : "No"}</p>
-
-    <KeyframeMarker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
-      <p>Selected Tool: {selectedTool}</p>
-
-      <button
-        onClick={undo}
-        disabled={past.length === 0}
-      >
-        Undo
-      </button>
-
-      <button
-        onClick={redo}
-        disabled={future.length === 0}
-      >
-        Redo
-      </button>
-
-      <button
-        onClick={() => saveLineup(focusedSide)}
-        disabled={(focusedSide === "home" ? homeTeamId : awayTeamId) === null}
-      >
-        Save Formation
-      </button>
-
-      <button
-        onClick={savePlay}
-        disabled={!selectedPlayName || activeFrameIndex === null}
-      >
-        Save Play
-      </button>
-
-      <button onClick={() => setShowBench((current) => !current)}>
-        Bench {showBench && "✓"}
-      </button>
-
-      <button onClick={flipField}>
-        Flip Field
-      </button>
-
+      <div className="toolbar-row"> 
+      <button onClick={undo} disabled={past.length === 0}>Undo</button>
+      <button onClick={redo} disabled={future.length === 0}>Redo</button>
+      <button onClick={() => saveLineup(focusedSide)} disabled={(focusedSide === "home" ? homeTeamId : awayTeamId) === null}>Save Formation</button>
+      <button onClick={savePlay} disabled={!selectedPlayName || activeFrameIndex === null}>Save Play</button>
+      <button onClick={() => setShowBench((current) => !current)}>Bench {showBench && "✓"}</button>
+      <button onClick={flipField}>Flip Field</button>
       {focusedTeam !== null && (
-        <button onClick={() => setShowKit((current) => !current)}>
-          Kit {showKit && "✓"}
-        </button>
+        <button onClick={() => setShowKit((current) => !current)}>Kit {showKit && "✓"}</button>
       )}
-
       {focusedTeam !== null && (
-        <button onClick={() => setShowFormation((current) => !current)}>
-          Formation {showFormation && "✓"}
-        </button>
+        <button onClick={() => setShowFormation((current) => !current)}>Formation {showFormation && "✓"}</button>
       )}
-
-      <button onClick={() => setFocusedSide("home")}>
-        Editing: Home {focusedSide === "home" && "✓"}
-      </button>
-
-      <button onClick={() => setFocusedSide("away")}>
-        Editing: Away {focusedSide === "away" && "✓"}
-      </button>
-
-      <button onClick={() => setShowPlays((current) => !current)}>
-        Plays {showPlays && "✓"}
-      </button>
-
+      <button onClick={() => setFocusedSide("home")}>Editing: Home {focusedSide === "home" && "✓"}</button>
+      <button onClick={() => setFocusedSide("away")}>Editing: Away {focusedSide === "away" && "✓"}</button>
+      <button onClick={() => setShowPlays((current) => !current)}>Plays {showPlays && "✓"}</button>
       {selectedPlayName !== null && awayTeamId !== null && (
-        <button onClick={() => setShowSwapTeam((current) => !current)}>
-          Swap Away Team {showSwapTeam && "✓"}
-        </button>
+        <button onClick={() => setShowSwapTeam((current) => !current)}>Swap Away {showSwapTeam && "✓"}</button>
       )}
-
-      <button onClick={() => setShowPlayerNames((current) => !current)}>
-        Name {showPlayerNames && "✓"}
-      </button>
-
-      <button onClick={() => setShowPlayerPositions((current) => !current)}>
-        Position {showPlayerPositions && "✓"}
-      </button>
+      <button onClick={() => setShowPlayerNames((current) => !current)}>Name {showPlayerNames && "✓"}</button>
+      <button onClick={() => setShowPlayerPositions((current) => !current)}>Position {showPlayerPositions && "✓"}</button>
+      </div>
 
       {newPlayerPosition && (
-  <PlayerCreator 
-    createPlayer={createPlayer}
-    cancelCreate={() => setNewPlayerPosition(null)}
-  />
-)}
-{newTextPosition && (
-  <TextCreator
-    createText={createText}
-    cancelCreate={() => setNewTextPosition(null)}
-  />
-)}
-
-<ClipPlayer
-  profile={profile}
-  clipId={clipId}
-  homeTeam={homeCurrentTeam}
-  awayTeam={awayCurrentTeam}
-  homeColor={homeKitColor}
-  homeNumberColor={homeKitNumberColor}
-  awayColor={awayKitColor}
-  awayNumberColor={awayKitNumberColor}
-  setPlayers={setPlayersFromClip}
-  setBallPosition={setBallPositionFromClip}
-/>
+        <PlayerCreator createPlayer={createPlayer} cancelCreate={() => setNewPlayerPosition(null)} />
+      )}
+      {newTextPosition && (
+        <TextCreator createText={createText} cancelCreate={() => setNewTextPosition(null)} />
+      )}
 
 <div
   style={{
     display: "flex",
     gap: "20px",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    justifyContent: "center",
+    width: "100%",
+    paddingLeft: "8%"
  }}
 >
 

@@ -279,6 +279,9 @@ const centerY = pitchY + pitchHeight / 2
 const grassMarginX = 40
 const grassMarginY = 25
 
+const stripeCount = 10
+const stripeHeight = (pitchHeight + grassMarginY * 2) / stripeCount
+
 // Penalty Areas (40.3m x 16.5m, FIFA standard)
 
 const penaltyDepth = 16.5 * SCALE_X
@@ -517,6 +520,7 @@ function handlePitchClick(e:any){
 
 return (
 
+<div className="pitch-card">
 <Stage
  width={960}
  height={600}
@@ -584,15 +588,18 @@ onMouseUp={(e)=>{
 
 {/* Grass */}
 
-<Rect
-  name="pitch"
-  x={pitchX - grassMarginX}
-  y={pitchY - grassMarginY}
-  width={pitchWidth + grassMarginX * 2}
-  height={pitchHeight + grassMarginY * 2}
-  fill="green"
-  listening={false}
-/>
+{Array.from({ length: stripeCount }).map((_, i) => (
+  <Rect
+    key={`stripe-${i}`}
+    name="pitch"
+    x={pitchX - grassMarginX}
+    y={pitchY - grassMarginY + i * stripeHeight}
+    width={pitchWidth + grassMarginX * 2}
+    height={stripeHeight}
+    fill={i % 2 === 0 ? "#1e5631" : "#1a4b2a"}
+    listening={false}
+  />
+))}
 
 {/* Field markings */}
 
@@ -1218,6 +1225,7 @@ showPosition={showPlayerPositions}
 </Layer>
 
 </Stage>
+</div>
 
 )
 

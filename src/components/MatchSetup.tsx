@@ -360,7 +360,7 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
       </div>
 
       <button onClick={clearAllClipData} style={{ marginTop: "10px", color: "red" }}>
-        Clear All Calibrations & Keyframes for This Clip
+        Clear All
       </button>
 
       {videoSrc && (
@@ -456,7 +456,7 @@ function MatchSetup({ profile, clipId, setClipId, onVideoUploaded }: MatchSetupP
       )}
 
       <button onClick={saveCalibrationsToBackend} disabled={calibrations.length === 0} style={{ marginTop: "10px" }}>
-        Save Calibration to Clip
+        Save to Clip
       </button>
     </div>
   )
