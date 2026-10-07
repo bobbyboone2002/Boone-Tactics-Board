@@ -1566,54 +1566,57 @@ return (
   <div style={{ paddingBottom: "80px", position: "relative" }}>
 
     <div
+  style={{
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "flex-start",
+    marginBottom: "16px",
+    paddingRight: "20px",
+    boxSizing: "border-box",
+  }}
+>
+  <VideoToolsGate>
+    <div
       style={{
-        position: "absolute",
-        top: 0,
-        right: "5%",
-        fontSize: "10px",
+        display: "flex",
+        gap: "10px",
+        justifyContent: "flex-end",
+        alignItems: "center",
       }}
     >
-      <VideoToolsGate>
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            justifyContent: "center",
-            marginBottom: "16px",
-          }}
-        >
-          <MatchSetup
-            profile={profile}
-            clipId={clipId}
-            setClipId={(id) => {
-              setClipId(id)
-              setVideoUploaded(false)
-            }}
-            onVideoUploaded={() => setVideoUploaded(true)}
-          />
+      <MatchSetup
+        profile={profile}
+        clipId={clipId}
+        setClipId={(id) => {
+          setClipId(id)
+          setVideoUploaded(false)
+        }}
+        onVideoUploaded={() => setVideoUploaded(true)}
+      />
 
-          <KeyframeMarker
-            profile={profile}
-            clipId={clipId}
-            rosterOptions={rosterOptions}
-            videoReady={videoUploaded}
-          />
+      <KeyframeMarker
+        profile={profile}
+        clipId={clipId}
+        rosterOptions={rosterOptions}
+        videoReady={videoUploaded}
+      />
 
-          <ClipPlayer
-            profile={profile}
-            clipId={clipId}
-            homeTeam={homeCurrentTeam}
-            awayTeam={awayCurrentTeam}
-            homeColor={homeKitColor}
-            homeNumberColor={homeKitNumberColor}
-            awayColor={awayKitColor}
-            awayNumberColor={awayKitNumberColor}
-            setPlayers={setPlayersFromClip}
-            setBallPosition={setBallPositionFromClip}
-          />
-        </div>
-      </VideoToolsGate>
+      <ClipPlayer
+        profile={profile}
+        clipId={clipId}
+        homeTeam={homeCurrentTeam}
+        awayTeam={awayCurrentTeam}
+        homeColor={homeKitColor}
+        homeNumberColor={homeKitNumberColor}
+        awayColor={awayKitColor}
+        awayNumberColor={awayKitNumberColor}
+        setPlayers={setPlayersFromClip}
+        setBallPosition={setBallPositionFromClip}
+      />
     </div>
+  </VideoToolsGate>
+</div>
 
     <div>
       <h1>Boone Tactics Board</h1>

@@ -110,7 +110,7 @@ function KeyframeMarker({ profile, clipId, rosterOptions, videoReady }: Keyframe
   }
 
   if (calibrationTimes.length === 0) {
-    return <p>No saved calibrations for this clip yet — calibrate at least one frame first.</p>
+    return <p>No saved calibrations.</p>
   }
 
   const marksAtThisKeyframe = Object.entries(keyframes)
