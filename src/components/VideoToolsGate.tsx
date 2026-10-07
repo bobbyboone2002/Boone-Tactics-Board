@@ -43,46 +43,46 @@ function VideoToolsGate({ children }: { children: ReactNode }) {
 
   return (
     <div
-      style={{
-        width: "360px",
-        maxWidth: "100%",
-        boxSizing: "border-box",
-        border: "1px solid #e5c400",
-        borderRadius: "8px",
-        padding: "10px 12px",
-        background: "rgba(255, 253, 235, 0.96)",
-        color: "#172554",
-        fontSize: "12px",
-        lineHeight: "1.4",
-      }}
-    >
+  style={{
+    width: "320px",
+    maxWidth: "100%",
+    boxSizing: "border-box",
+    border: "1px solid #e5c400",
+    borderRadius: "7px",
+    padding: "8px 10px",
+    background: "rgba(255, 253, 235, 0.96)",
+    color: "#172554",
+    fontSize: "10px",
+    lineHeight: "1.3",
+  }}
+>
       <div
-        style={{
-          fontSize: "16px",
-          fontWeight: 700,
-          marginBottom: "6px",
-        }}
-      >
-        🎥 Video Tracking & Clip Playback
-      </div>
+  style={{
+    fontSize: "14px",
+    fontWeight: 700,
+    marginBottom: "4px",
+  }}
+>
+  🎥 Video Tracking & Clip Playback
+</div>
 
       <p
-        style={{
-          margin: "0 0 6px 0",
-          fontSize: "11px",
-          color: "#475569",
-        }}
-      >
-        Runs locally on your computer. One-time setup:
-      </p>
+  style={{
+    margin: "0 0 5px 0",
+    fontSize: "10px",
+    color: "#475569",
+  }}
+>
+  Runs locally on your computer. One-time setup:
+</p>
 
       <ol
-        style={{
-          margin: "0 0 8px 20px",
-          padding: 0,
-          fontSize: "11px",
-        }}
-      >
+  style={{
+    margin: "0 0 6px 18px",
+    padding: 0,
+    fontSize: "10px",
+  }}
+>
         <li style={{ marginBottom: "4px" }}>
           <a href="/downloads/server.py" download>
             Download server.py
@@ -121,18 +121,18 @@ function VideoToolsGate({ children }: { children: ReactNode }) {
       </ol>
 
       <button
-        onClick={checkBackend}
-        style={{
-          padding: "5px 10px",
-          fontSize: "11px",
-          borderRadius: "6px",
-          border: "1px solid #cbd5e1",
-          background: "white",
-          cursor: "pointer",
-        }}
-      >
-        Check again
-      </button>
+  onClick={checkBackend}
+  style={{
+    padding: "4px 8px",
+    fontSize: "10px",
+    borderRadius: "5px",
+    border: "1px solid #cbd5e1",
+    background: "white",
+    cursor: "pointer",
+  }}
+>
+  Check again
+</button>
     </div>
   )
 }

@@ -1649,6 +1649,15 @@ return (
       )}
     </div>
 
+    <hr
+  style={{
+    width: "70%",
+    margin: "10px auto",
+    border: "none",
+    borderTop: "1px solid #e2e8f0",
+  }}
+/>
+
     <div className="toolbar-row">
 
       <button
