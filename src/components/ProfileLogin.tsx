@@ -16,7 +16,7 @@ function ProfileLogin({ onSelectProfile }: ProfileLoginProps) {
         textAlign: "center",
       }}
     >
-      <h1>Soccer Tactics Board</h1>
+      <h1>Boone Tactics Board</h1>
 
       <h2>Create or Enter Profile Name</h2>
 

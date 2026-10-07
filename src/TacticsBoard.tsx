@@ -1562,9 +1562,9 @@ const benchPlayers = focusedTeam
     )
   : []
 
-  return (
-    <div>
-      <h1>Wilt Tactics Board</h1>
+    return (
+    <div style={{ paddingBottom: "80px" }}>
+      <h1>Boone Tactics Board</h1>
 
       <p>Profile: {profile}</p>
 
@@ -1576,19 +1576,19 @@ const benchPlayers = focusedTeam
         Clear Profile
       </button>
 
-      {showConfirmClear && (
-        <span style={{ marginLeft: "10px" }}>
-          Confirm Clear:
-          <button onClick={clearProfile} style={{ marginLeft: "6px" }}>
-            Yes, clear
-          </button>
-          <button onClick={() => setShowConfirmClear(false)} style={{ marginLeft: "6px" }}>
-            No, keep
-          </button>
-        </span>
-      )}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 20px" }}>
+        <div>
+          {showConfirmClear && (
+            <span style={{ marginLeft: "10px" }}>
+              Confirm Clear:
+              <button onClick={clearProfile} style={{ marginLeft: "6px" }}>Yes, clear</button>
+              <button onClick={() => setShowConfirmClear(false)} style={{ marginLeft: "6px" }}>No, keep</button>
+            </span>
+          )}
+        </div>
 
-          <VideoToolsGate>
+        <VideoToolsGate>
+        <div style={{ fontSize: "13px" }}>
         <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
           <MatchSetup
             profile={profile}
@@ -1610,7 +1610,9 @@ const benchPlayers = focusedTeam
             setBallPosition={setBallPositionFromClip}
           />
         </div>
-      </VideoToolsGate>
+        </div>
+        </VideoToolsGate>
+      </div>
 
       <div className="toolbar-row"> 
       <button onClick={undo} disabled={past.length === 0}>Undo</button>
@@ -1649,7 +1651,7 @@ const benchPlayers = focusedTeam
     alignItems: "flex-start",
     justifyContent: "center",
     width: "100%",
-    paddingLeft: "8%"
+    paddingRight: "25%"
  }}
 >
 

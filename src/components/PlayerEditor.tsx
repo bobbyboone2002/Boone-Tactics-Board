@@ -52,7 +52,7 @@ function PlayerEditor({
 
   return (
     <div>
-      <h2>Player Editor</h2>
+      <h2>Edit Player</h2>
 
       <label>
         Name:
