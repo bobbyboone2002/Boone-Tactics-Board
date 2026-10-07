@@ -35,6 +35,12 @@ setSelectedArrowStyle: (
   setSelectedRectOpacity: (opacity: number) => void
 }
 
+function activeStyle(isActive: boolean): React.CSSProperties {
+  return isActive
+    ? { background: "var(--navy)", color: "#fff", borderColor: "var(--navy)" }
+    : {}
+}
+
 function Toolbar({
   selectedTool,
   setSelectedTool,
@@ -63,106 +69,76 @@ function Toolbar({
         padding: "10px",
       }}
     >
-      <button onClick={() => setSelectedTool("select")}>
+      <button onClick={() => setSelectedTool("select")} style={activeStyle(selectedTool === "select")}>
         Select
       </button>
 
-      <button
-        onClick={() => setSelectedTool("player")}
-      >
+      <button onClick={() => setSelectedTool("player")} style={activeStyle(selectedTool === "player")}>
         Player
       </button>
 
-      <button
-        onClick={() => setSelectedTool("ball")}
-      >
+      <button onClick={() => setSelectedTool("ball")} style={activeStyle(selectedTool === "ball")}>
         Ball
       </button>
 
-      <button
-        onClick={() => setSelectedTool("arrow")}
-      >
+      <button onClick={() => setSelectedTool("arrow")} style={activeStyle(selectedTool === "arrow")}>
         Arrow
       </button>
 
-      <button
-         onClick={() => setSelectedTool("text")}
-        >
-          Text
-        </button>
+      <button onClick={() => setSelectedTool("text")} style={activeStyle(selectedTool === "text")}>
+        Text
+      </button>
 
-        <button
-        onClick={() => setSelectedTool("switch")}
-        >
-          Switch
-        </button>
+      <button onClick={() => setSelectedTool("switch")} style={activeStyle(selectedTool === "switch")}>
+        Switch
+      </button>
 
-        <button
-        onClick={() => setSelectedTool("rectangle")}
-        >
-          Rectangle
-        </button>
+      <button onClick={() => setSelectedTool("rectangle")} style={activeStyle(selectedTool === "rectangle")}>
+        Rectangle
+      </button>
 
       {selectedTool === "arrow" && (
       <>
 
       <h3>Arrow Style</h3>
 
-      <button
-         onClick={() => setSelectedArrowStyle("arrow")}
-         >
-         Normal {selectedArrowStyle === "arrow" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowStyle("arrow")} style={activeStyle(selectedArrowStyle === "arrow")}>
+         Normal
+      </button>
 
-        <button
-         onClick={() => setSelectedArrowStyle("double")}
-        >
-         Double {selectedArrowStyle === "double" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowStyle("double")} style={activeStyle(selectedArrowStyle === "double")}>
+         Double
+      </button>
 
-        <button
-         onClick={() => setSelectedArrowStyle("dashed")}
-        >
-         Dashed {selectedArrowStyle === "dashed" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowStyle("dashed")} style={activeStyle(selectedArrowStyle === "dashed")}>
+         Dashed
+      </button>
 
-        <button
-        onClick={() => setSelectedArrowStyle("line")}
-        >
-         Line {selectedArrowStyle === "line" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowStyle("line")} style={activeStyle(selectedArrowStyle === "line")}>
+         Line
+      </button>
 
-        <button
-        onClick={() => setSelectedArrowCurved(!selectedArrowCurved)}
-        >
-         Curved {selectedArrowCurved ? "On ✓" : "Off"}
-        </button>
+      <button onClick={() => setSelectedArrowCurved(!selectedArrowCurved)} style={activeStyle(selectedArrowCurved)}>
+         Curved {selectedArrowCurved ? "On" : "Off"}
+      </button>
 
-        <h3>Arrow Color</h3>
+      <h3>Arrow Color</h3>
 
-        <button
-         onClick={() => setSelectedArrowColor("yellow")}
-        >
-         Yellow {selectedArrowColor === "yellow" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowColor("yellow")} style={activeStyle(selectedArrowColor === "yellow")}>
+         Yellow
+      </button>
 
-        <button
-         onClick={() => setSelectedArrowColor("red")}
-        >
-         Red {selectedArrowColor === "red" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowColor("red")} style={activeStyle(selectedArrowColor === "red")}>
+         Red
+      </button>
 
-        <button
-         onClick={() => setSelectedArrowColor("blue")}
-        >
-         Blue {selectedArrowColor === "blue" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowColor("blue")} style={activeStyle(selectedArrowColor === "blue")}>
+         Blue
+      </button>
 
-        <button
-         onClick={() => setSelectedArrowColor("lime")}
-        >
-         Green {selectedArrowColor === "lime" && "✓"}
-        </button>
+      <button onClick={() => setSelectedArrowColor("lime")} style={activeStyle(selectedArrowColor === "lime")}>
+         Green
+      </button>
 
         </>
 
@@ -173,24 +149,24 @@ function Toolbar({
 
         <h3>Text Color</h3>
 
-        <button onClick={() => setSelectedTextColor("white")}>
-         White {selectedTextColor === "white" && "✓"}
+        <button onClick={() => setSelectedTextColor("white")} style={activeStyle(selectedTextColor === "white")}>
+         White
         </button>
 
-        <button onClick={() => setSelectedTextColor("yellow")}>
-         Yellow {selectedTextColor === "yellow" && "✓"}
+        <button onClick={() => setSelectedTextColor("yellow")} style={activeStyle(selectedTextColor === "yellow")}>
+         Yellow
         </button>
 
-        <button onClick={() => setSelectedTextColor("red")}>
-         Red {selectedTextColor === "red" && "✓"}
+        <button onClick={() => setSelectedTextColor("red")} style={activeStyle(selectedTextColor === "red")}>
+         Red
         </button>
 
-        <button onClick={() => setSelectedTextColor("blue")}>
-         Blue {selectedTextColor === "blue" && "✓"}
+        <button onClick={() => setSelectedTextColor("blue")} style={activeStyle(selectedTextColor === "blue")}>
+         Blue
         </button>
 
-        <button onClick={() => setSelectedTextColor("lime")}>
-         Green {selectedTextColor === "lime" && "✓"}
+        <button onClick={() => setSelectedTextColor("lime")} style={activeStyle(selectedTextColor === "lime")}>
+         Green
         </button>
 
       </>
@@ -203,52 +179,52 @@ function Toolbar({
 
 <h3>Rectangle Style</h3>
 
-<button onClick={() => setSelectedRectStyle("solid")}>
-         Solid {selectedRectStyle === "solid" && "✓"}
+<button onClick={() => setSelectedRectStyle("solid")} style={activeStyle(selectedRectStyle === "solid")}>
+         Solid
 </button>
 
-<button onClick={() => setSelectedRectStyle("dashed")}>
-         Dashed {selectedRectStyle === "dashed" && "✓"}
+<button onClick={() => setSelectedRectStyle("dashed")} style={activeStyle(selectedRectStyle === "dashed")}>
+         Dashed
 </button>
 
 <h3>Rectangle Color</h3>
 
-<button onClick={() => setSelectedRectColor("yellow")}>
-         Yellow {selectedRectColor === "yellow" && "✓"}
+<button onClick={() => setSelectedRectColor("yellow")} style={activeStyle(selectedRectColor === "yellow")}>
+         Yellow
 </button>
 
-<button onClick={() => setSelectedRectColor("red")}>
-         Red {selectedRectColor === "red" && "✓"}
+<button onClick={() => setSelectedRectColor("red")} style={activeStyle(selectedRectColor === "red")}>
+         Red
 </button>
 
-<button onClick={() => setSelectedRectColor("blue")}>
-         Blue {selectedRectColor === "blue" && "✓"}
+<button onClick={() => setSelectedRectColor("blue")} style={activeStyle(selectedRectColor === "blue")}>
+         Blue
 </button>
 
-<button onClick={() => setSelectedRectColor("lime")}>
-         Green {selectedRectColor === "lime" && "✓"}
+<button onClick={() => setSelectedRectColor("lime")} style={activeStyle(selectedRectColor === "lime")}>
+         Green
 </button>
 
 <h3>Rectangle Opacity</h3>
 
-<button onClick={() => setSelectedRectOpacity(0)}>
-         0% {selectedRectOpacity === 0 && "✓"}
+<button onClick={() => setSelectedRectOpacity(0)} style={activeStyle(selectedRectOpacity === 0)}>
+         0%
 </button>
 
-<button onClick={() => setSelectedRectOpacity(0.25)}>
-         25% {selectedRectOpacity === 0.25 && "✓"}
+<button onClick={() => setSelectedRectOpacity(0.25)} style={activeStyle(selectedRectOpacity === 0.25)}>
+         25%
 </button>
 
-<button onClick={() => setSelectedRectOpacity(0.5)}>
-         50% {selectedRectOpacity === 0.5 && "✓"}
+<button onClick={() => setSelectedRectOpacity(0.5)} style={activeStyle(selectedRectOpacity === 0.5)}>
+         50%
 </button>
 
-<button onClick={() => setSelectedRectOpacity(0.75)}>
-         75% {selectedRectOpacity === 0.75 && "✓"}
+<button onClick={() => setSelectedRectOpacity(0.75)} style={activeStyle(selectedRectOpacity === 0.75)}>
+         75%
 </button>
 
-<button onClick={() => setSelectedRectOpacity(1)}>
-         100% {selectedRectOpacity === 1 && "✓"}
+<button onClick={() => setSelectedRectOpacity(1)} style={activeStyle(selectedRectOpacity === 1)}>
+         100%
 </button>
 
 </>

@@ -21,8 +21,7 @@ type PlayerEditorProps = {
 
   deletePlayer: (
     id: number
-    ) => void
-  
+  ) => void
 }
 
 function PlayerEditor({
@@ -31,27 +30,40 @@ function PlayerEditor({
   deletePlayer
 }: PlayerEditorProps) {
 
+  const [showPanel, setShowPanel] = useState(false)
+
   const [name, setName] = useState(player?.name ?? "")
   const [position, setPosition] = useState(player?.position ?? "")
   const [number, setNumber] = useState(player?.number ?? 0)
   const [color, setColor] = useState(player?.color ?? "blue")
 
   useEffect(() => {
-  if (player) {
-    setName(player.name)
-    setPosition(player.position)
-    setNumber(player.number)
-    setColor(player.color)
-  }
-}, [player])
+    if (player) {
+      setName(player.name)
+      setPosition(player.position)
+      setNumber(player.number)
+      setColor(player.color)
+    } else {
+      setShowPanel(false)
+    }
+  }, [player])
 
   if (!player) {
     return null
   }
 
+  if (!showPanel) {
+    return (
+      <button onClick={() => setShowPanel(true)}>
+        Edit Player
+      </button>
+    )
+  }
 
   return (
     <div>
+      <button onClick={() => setShowPanel(false)}>Close</button>
+
       <h2>Edit Player</h2>
 
       <label>
@@ -110,9 +122,9 @@ function PlayerEditor({
 
       <button
         onClick={() => deletePlayer(player.id)}
-        >
+      >
         Delete Player
-        </button>
+      </button>
 
     </div>
   )
