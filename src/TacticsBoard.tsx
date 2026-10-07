@@ -1562,41 +1562,43 @@ const benchPlayers = focusedTeam
     )
   : []
 
-    return (
-    <div style={{ paddingBottom: "80px" }}>
-      <h1>Boone Tactics Board</h1>
+return (
+  <div style={{ paddingBottom: "80px", position: "relative" }}>
 
-      <p>Profile: {profile}</p>
-
-      <button onClick={onSwitchProfile}>
-        Switch Profile
-      </button>
-
-      <button onClick={() => setShowConfirmClear(true)}>
-        Clear Profile
-      </button>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 5%" }}>
-        <div>
-          {showConfirmClear && (
-            <span style={{ marginLeft: "10px" }}>
-              Confirm Clear:
-              <button onClick={clearProfile} style={{ marginLeft: "6px" }}>Yes, clear</button>
-              <button onClick={() => setShowConfirmClear(false)} style={{ marginLeft: "6px" }}>No, keep</button>
-            </span>
-          )}
-        </div>
-
-        <VideoToolsGate>
-        <div style={{ fontSize: "8px" }}>
-        <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        right: "5%",
+        fontSize: "10px",
+      }}
+    >
+      <VideoToolsGate>
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            justifyContent: "center",
+            marginBottom: "16px",
+          }}
+        >
           <MatchSetup
             profile={profile}
             clipId={clipId}
-            setClipId={(id) => { setClipId(id); setVideoUploaded(false) }}
+            setClipId={(id) => {
+              setClipId(id)
+              setVideoUploaded(false)
+            }}
             onVideoUploaded={() => setVideoUploaded(true)}
           />
-          <KeyframeMarker profile={profile} clipId={clipId} rosterOptions={rosterOptions} videoReady={videoUploaded} />
+
+          <KeyframeMarker
+            profile={profile}
+            clipId={clipId}
+            rosterOptions={rosterOptions}
+            videoReady={videoUploaded}
+          />
+
           <ClipPlayer
             profile={profile}
             clipId={clipId}
@@ -1610,185 +1612,315 @@ const benchPlayers = focusedTeam
             setBallPosition={setBallPositionFromClip}
           />
         </div>
-        </div>
-        </VideoToolsGate>
-      </div>
+      </VideoToolsGate>
+    </div>
 
-      <div className="toolbar-row"> 
-      <button onClick={undo} disabled={past.length === 0}>Undo</button>
-      <button onClick={redo} disabled={future.length === 0}>Redo</button>
-      <button onClick={() => saveLineup(focusedSide)} disabled={(focusedSide === "home" ? homeTeamId : awayTeamId) === null}>Save Formation</button>
-      <button onClick={savePlay} disabled={!selectedPlayName || activeFrameIndex === null}>Save Play</button>
-      <button onClick={() => setShowBench((current) => !current)}>Bench {showBench && "✓"}</button>
-      <button onClick={flipField}>Flip Field</button>
-      {focusedTeam !== null && (
-        <button onClick={() => setShowKit((current) => !current)}>Kit {showKit && "✓"}</button>
+    <div>
+      <h1>Boone Tactics Board</h1>
+
+      <p>Profile: {profile}</p>
+
+      <button onClick={onSwitchProfile}>
+        Switch Profile
+      </button>
+
+      <button onClick={() => setShowConfirmClear(true)}>
+        Clear Profile
+      </button>
+
+      {showConfirmClear && (
+        <span style={{ marginLeft: "10px" }}>
+          Confirm Clear:
+
+          <button
+            onClick={clearProfile}
+            style={{ marginLeft: "6px" }}
+          >
+            Yes, clear
+          </button>
+
+          <button
+            onClick={() => setShowConfirmClear(false)}
+            style={{ marginLeft: "6px" }}
+          >
+            No, keep
+          </button>
+        </span>
       )}
+    </div>
+
+    <div className="toolbar-row">
+
+      <button
+        onClick={undo}
+        disabled={past.length === 0}
+      >
+        Undo
+      </button>
+
+      <button
+        onClick={redo}
+        disabled={future.length === 0}
+      >
+        Redo
+      </button>
+
+      <button
+        onClick={() => saveLineup(focusedSide)}
+        disabled={
+          (focusedSide === "home" ? homeTeamId : awayTeamId) === null
+        }
+      >
+        Save Formation
+      </button>
+
+      <button
+        onClick={savePlay}
+        disabled={!selectedPlayName || activeFrameIndex === null}
+      >
+        Save Play
+      </button>
+
+      <button
+        onClick={() => setShowBench((current) => !current)}
+      >
+        Bench {showBench && "✓"}
+      </button>
+
+      <button onClick={flipField}>
+        Flip Field
+      </button>
+
       {focusedTeam !== null && (
-        <button onClick={() => setShowFormation((current) => !current)}>Formation {showFormation && "✓"}</button>
+        <button
+          onClick={() => setShowKit((current) => !current)}
+        >
+          Kit {showKit && "✓"}
+        </button>
       )}
-      <button onClick={() => setFocusedSide("home")}>Editing: Home {focusedSide === "home" && "✓"}</button>
-      <button onClick={() => setFocusedSide("away")}>Editing: Away {focusedSide === "away" && "✓"}</button>
-      <button onClick={() => setShowPlays((current) => !current)}>Plays {showPlays && "✓"}</button>
+
+      {focusedTeam !== null && (
+        <button
+          onClick={() => setShowFormation((current) => !current)}
+        >
+          Formation {showFormation && "✓"}
+        </button>
+      )}
+
+      <button onClick={() => setFocusedSide("home")}>
+        Editing: Home {focusedSide === "home" && "✓"}
+      </button>
+
+      <button onClick={() => setFocusedSide("away")}>
+        Editing: Away {focusedSide === "away" && "✓"}
+      </button>
+
+      <button
+        onClick={() => setShowPlays((current) => !current)}
+      >
+        Plays {showPlays && "✓"}
+      </button>
+
       {selectedPlayName !== null && awayTeamId !== null && (
-        <button onClick={() => setShowSwapTeam((current) => !current)}>Swap Away {showSwapTeam && "✓"}</button>
-      )}
-      <button onClick={() => setShowPlayerNames((current) => !current)}>Name {showPlayerNames && "✓"}</button>
-      <button onClick={() => setShowPlayerPositions((current) => !current)}>Position {showPlayerPositions && "✓"}</button>
-      </div>
-
-      {newPlayerPosition && (
-        <PlayerCreator createPlayer={createPlayer} cancelCreate={() => setNewPlayerPosition(null)} />
-      )}
-      {newTextPosition && (
-        <TextCreator createText={createText} cancelCreate={() => setNewTextPosition(null)} />
+        <button
+          onClick={() => setShowSwapTeam((current) => !current)}
+        >
+          Swap Away {showSwapTeam && "✓"}
+        </button>
       )}
 
-<div
-  style={{
-    display: "flex",
-    gap: "20px",
-    alignItems: "flex-start",
-    justifyContent: "center",
-    width: "100%",
-    paddingRight: "25%"
- }}
->
+      <button
+        onClick={() => setShowPlayerNames((current) => !current)}
+      >
+        Name {showPlayerNames && "✓"}
+      </button>
 
-  <Toolbar 
-    selectedTool={selectedTool}
-    setSelectedTool={setSelectedTool}
-    selectedArrowStyle={selectedArrowStyle}
-    setSelectedArrowStyle={setSelectedArrowStyle}
-    selectedArrowColor={selectedArrowColor}
-    setSelectedArrowColor={setSelectedArrowColor}
-    selectedArrowCurved={selectedArrowCurved}
-    setSelectedArrowCurved={setSelectedArrowCurved}
-    selectedTextColor={selectedTextColor}
-    setSelectedTextColor={setSelectedTextColor}
-    selectedRectStyle={selectedRectStyle}
-    setSelectedRectStyle={setSelectedRectStyle}
-    selectedRectColor={selectedRectColor}
-    setSelectedRectColor={setSelectedRectColor}
-    selectedRectOpacity={selectedRectOpacity}
-    setSelectedRectOpacity={setSelectedRectOpacity}
-  />
-
-  <TeamSelector
-    teams={teams}
-    selectedCategory={selectedCategory}
-    setSelectedCategory={setSelectedCategory}
-    selectedTeamId={focusedSide === "home" ? homeTeamId : awayTeamId}
-    loadTeam={(teamId) => loadTeam(teamId, focusedSide)}
-  />
-
-  {showFormation && (
-    <FormationSelector
-      formationNames={Object.keys(formations)}
-      selectedFormation={focusedSide === "home" ? homeFormation : awayFormation}
-      applyFormation={(name) => applyFormation(name, focusedSide)}
-    />
-  )}
-
-  {showBench && (
-    <BenchPanel
-      benchPlayers={benchPlayers}
-      switchMode={selectedTool === "switch"}
-      swapSourceId={swapSource?.type === "bench" ? swapSource.id : null}
-      onBenchSelect={handleBenchSelect}
-    />
-  )}
-
-  {showKit && focusedTeam && (
-    <KitSelector
-      activeKit={getActiveKit(focusedTeam, kitOverrides)}
-      changeKit={(kit) => changeKit(kit, focusedSide)}
-    />
-  )}
-
-  {showPlays && (
-    <PlaysPanel
-      playNames={currentPlayNames}
-      selectedPlayName={selectedPlayName}
-      selectPlay={selectPlay}
-      addPlayName={addPlayName}
-      deletePlay={deletePlay}
-    />
-  )}
-
-  {showPlays && selectedPlayName && (
-    <FramesPanel
-      playName={selectedPlayName}
-      frameCount={currentPlayFrames.length}
-      activeFrameIndex={activeFrameIndex}
-      loadFrame={loadFrame}
-      addFrame={addFrame}
-      deleteFrame={deleteFrame}
-    />
-  )}
-
-  {showSwapTeam && (
-    <SwapTeamPanel
-      teams={teams}
-      swapAwayTeam={swapAwayTeam}
-    />
-  )}
-
-  <SoccerPitch 
-    players={players}
-    selectedTool={selectedTool}
-    updatePlayerPosition={updatePlayerPosition}
-    selectedPlayer={selectedPlayer}
-    setSelectedPlayer={setSelectedPlayer}
-    setNewPlayerPosition={setNewPlayerPosition}
-    setNewTextPosition={setNewTextPosition}
-    ballPosition={ballPosition}
-    setBallPosition={setBallPosition}
-    arrows={arrows}
-    setArrows={setArrows}
-    texts={texts}
-    setTexts={setTexts}
-    selectedArrow={selectedArrow}
-    setSelectedArrow={setSelectedArrow}
-    selectedArrowStyle={selectedArrowStyle}
-    selectedArrowColor={selectedArrowColor}
-    selectedArrowCurved={selectedArrowCurved}
-    selectedText={selectedText}
-    setSelectedText={setSelectedText}
-    switchMode={selectedTool === "switch"}
-    onSwitchSelect={handlePitchSwitchSelect}
-    onClearSwitch={handleClearSwitch}
-    rectangles={rectangles}
-    setRectangles={setRectangles}
-    selectedRectStyle={selectedRectStyle}
-    selectedRectColor={selectedRectColor}
-    selectedRectOpacity={selectedRectOpacity}
-    selectedRectangle={selectedRectangle}
-    setSelectedRectangle={setSelectedRectangle}
-    multiSelection={multiSelection}
-    toggleMultiSelect={toggleMultiSelect}
-    moveSelectedBy={moveSelectedBy}
-    setMultiSelection={setMultiSelection}
-    showPlayerNames={showPlayerNames}
-    showPlayerPositions={showPlayerPositions}
-  />
-
-  <PlayerEditor 
-    player={currentPlayer ?? null}
-    updatePlayer={updatePlayer}
-    deletePlayer={deletePlayer}
-  />
-
-  <TextEditor
-    textItem={currentText ?? null}
-    updateText={updateText}
-    deleteText={deleteText}
-  />
-
-</div>
+      <button
+        onClick={() => setShowPlayerPositions((current) => !current)}
+      >
+        Position {showPlayerPositions && "✓"}
+      </button>
 
     </div>
-  )
+
+    {newPlayerPosition && (
+      <PlayerCreator
+        createPlayer={createPlayer}
+        cancelCreate={() => setNewPlayerPosition(null)}
+      />
+    )}
+
+    {newTextPosition && (
+      <TextCreator
+        createText={createText}
+        cancelCreate={() => setNewTextPosition(null)}
+      />
+    )}
+
+    <div
+      style={{
+        display: "flex",
+        gap: "20px",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        width: "100%",
+        paddingRight: "25%",
+      }}
+    >
+
+      <Toolbar
+        selectedTool={selectedTool}
+        setSelectedTool={setSelectedTool}
+        selectedArrowStyle={selectedArrowStyle}
+        setSelectedArrowStyle={setSelectedArrowStyle}
+        selectedArrowColor={selectedArrowColor}
+        setSelectedArrowColor={setSelectedArrowColor}
+        selectedArrowCurved={selectedArrowCurved}
+        setSelectedArrowCurved={setSelectedArrowCurved}
+        selectedTextColor={selectedTextColor}
+        setSelectedTextColor={setSelectedTextColor}
+        selectedRectStyle={selectedRectStyle}
+        setSelectedRectStyle={setSelectedRectStyle}
+        selectedRectColor={selectedRectColor}
+        setSelectedRectColor={setSelectedRectColor}
+        selectedRectOpacity={selectedRectOpacity}
+        setSelectedRectOpacity={setSelectedRectOpacity}
+      />
+
+      <TeamSelector
+        teams={teams}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        selectedTeamId={
+          focusedSide === "home"
+            ? homeTeamId
+            : awayTeamId
+        }
+        loadTeam={(teamId) => loadTeam(teamId, focusedSide)}
+      />
+
+      {showFormation && focusedTeam !== null && (
+        <FormationSelector
+          formationNames={Object.keys(formations)}
+          selectedFormation={
+            focusedSide === "home"
+              ? homeFormation
+              : awayFormation
+          }
+          applyFormation={(name) =>
+            applyFormation(name, focusedSide)
+          }
+        />
+      )}
+
+      {showBench && (
+        <BenchPanel
+          benchPlayers={benchPlayers}
+          switchMode={selectedTool === "switch"}
+          swapSourceId={
+            swapSource?.type === "bench"
+              ? swapSource.id
+              : null
+          }
+          onBenchSelect={handleBenchSelect}
+        />
+      )}
+
+      {showKit && focusedTeam !== null && (
+        <KitSelector
+          activeKit={getActiveKit(
+            focusedTeam,
+            kitOverrides
+          )}
+          changeKit={(kit) =>
+            changeKit(kit, focusedSide)
+          }
+        />
+      )}
+
+      {showPlays && (
+        <PlaysPanel
+          playNames={currentPlayNames}
+          selectedPlayName={selectedPlayName}
+          selectPlay={selectPlay}
+          addPlayName={addPlayName}
+          deletePlay={deletePlay}
+        />
+      )}
+
+      {showPlays && selectedPlayName !== null && (
+        <FramesPanel
+          playName={selectedPlayName}
+          frameCount={currentPlayFrames.length}
+          activeFrameIndex={activeFrameIndex}
+          loadFrame={loadFrame}
+          addFrame={addFrame}
+          deleteFrame={deleteFrame}
+        />
+      )}
+
+      {showSwapTeam && (
+        <SwapTeamPanel
+          teams={teams}
+          swapAwayTeam={swapAwayTeam}
+        />
+      )}
+
+      <SoccerPitch
+        players={players}
+        selectedTool={selectedTool}
+        updatePlayerPosition={updatePlayerPosition}
+        selectedPlayer={selectedPlayer}
+        setSelectedPlayer={setSelectedPlayer}
+        setNewPlayerPosition={setNewPlayerPosition}
+        setNewTextPosition={setNewTextPosition}
+        ballPosition={ballPosition}
+        setBallPosition={setBallPosition}
+        arrows={arrows}
+        setArrows={setArrows}
+        texts={texts}
+        setTexts={setTexts}
+        selectedArrow={selectedArrow}
+        setSelectedArrow={setSelectedArrow}
+        selectedArrowStyle={selectedArrowStyle}
+        selectedArrowColor={selectedArrowColor}
+        selectedArrowCurved={selectedArrowCurved}
+        selectedText={selectedText}
+        setSelectedText={setSelectedText}
+        switchMode={selectedTool === "switch"}
+        onSwitchSelect={handlePitchSwitchSelect}
+        onClearSwitch={handleClearSwitch}
+        rectangles={rectangles}
+        setRectangles={setRectangles}
+        selectedRectStyle={selectedRectStyle}
+        selectedRectColor={selectedRectColor}
+        selectedRectOpacity={selectedRectOpacity}
+        selectedRectangle={selectedRectangle}
+        setSelectedRectangle={setSelectedRectangle}
+        multiSelection={multiSelection}
+        toggleMultiSelect={toggleMultiSelect}
+        moveSelectedBy={moveSelectedBy}
+        setMultiSelection={setMultiSelection}
+        showPlayerNames={showPlayerNames}
+        showPlayerPositions={showPlayerPositions}
+      />
+
+      <PlayerEditor
+        player={currentPlayer ?? null}
+        updatePlayer={updatePlayer}
+        deletePlayer={deletePlayer}
+      />
+
+      <TextEditor
+        textItem={currentText ?? null}
+        updateText={updateText}
+        deleteText={deleteText}
+      />
+
+    </div>
+
+  </div>
+)
 }
 
 export default TacticsBoard
