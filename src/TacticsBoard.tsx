@@ -1576,7 +1576,7 @@ const benchPlayers = focusedTeam
         Clear Profile
       </button>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 5%" }}>
         <div>
           {showConfirmClear && (
             <span style={{ marginLeft: "10px" }}>
@@ -1588,7 +1588,7 @@ const benchPlayers = focusedTeam
         </div>
 
         <VideoToolsGate>
-        <div style={{ fontSize: "13px" }}>
+        <div style={{ fontSize: "8px" }}>
         <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "16px" }}>
           <MatchSetup
             profile={profile}

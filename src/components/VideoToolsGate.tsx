@@ -25,7 +25,7 @@ function VideoToolsGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div style={{ border: "2px solid gold", borderRadius: "8px", padding: "10px 14px", textAlign: "left" }}>
+    <div style={{ border: "1px solid gold", borderRadius: "6px", padding: "6px 10px", textAlign: "left" }}>
       <h3>🎥 Video Tracking & Clip Playback</h3>
       <p>Runs locally on your computer. One-time setup:</p>
       <ol>
